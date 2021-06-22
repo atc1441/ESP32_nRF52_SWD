@@ -1,4 +1,4 @@
-# ESP32_nRF52_SWD
+# ESP32 nRF52 SWD flasher
 This software brings you the possibility to Read and Write the internal Flash of the Nordic nRF52 series with an ESP32
 
 To flash an nRF52 connect the SWD pins: CLK to GPIO 21 and DIO to GPIO 19 of the ESP32. Also connect the nRF52 GND to the ESP32 and power the nRF52 as needed.
@@ -21,7 +21,7 @@ SWD pins as mentioned above
 - ESPAsyncWebServer https://github.com/me-no-dev/ESPAsyncWebServer
 
 
-HowTo:
+### HowTo:
 
 - Open the "ESP32_SWD_WIFI.ino" file with Arduino and select the "ESP32 Dev Module", Make sure to select "No OTA (1MB App / 3MB SPIFFS)" as config for the ESP32 to have more space available.
 - Select the ESP32 COM port
