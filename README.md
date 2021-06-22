@@ -12,4 +12,10 @@ SWD pins as mentioned above
 
 
 
-###Needed Software
+### Needed Software
+
+- Arduino IDE https://www.arduino.cc/
+- ESP32 core Library https://github.com/espressif/arduino-esp32
+- This version of the WifiManager https://github.com/tzapu/WiFiManager/tree/feature_asyncwebserver
+- AsyncTCP https://github.com/me-no-dev/AsyncTCP
+- ESPAsyncWebServer https://github.com/me-no-dev/ESPAsyncWebServer
