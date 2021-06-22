@@ -10,6 +10,9 @@ NFet Mosfet like shown to GPIO 5 of the ESP32 - the Gate from the Mosfet to the 
 SWD pins as mentioned above
 
 
+This repo is made together with this explanation video:(click on it)
+
+[![YoutubeVideo](https://img.youtube.com/vi/Iu6RoXRZxOk/0.jpg)](https://www.youtube.com/watch?v=Iu6RoXRZxOk)
 
 
 ### Needed Software
