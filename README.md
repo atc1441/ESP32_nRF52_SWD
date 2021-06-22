@@ -33,7 +33,7 @@ HowTo:
 - Got to "http://swd.local" again, the SWD Flasher paged should be shown now.
 - Connect the nRF via SWD if not already done. Click the button "Init SWD" and wait for the response in the info page or look in the Arduino UART terminal if something doesnt work, The nRF chip should be detected, if the nRF is locked it will notify about that.
 
-. To flash a new firmware to an nRF you can erase the whole chip to then flash an uploaded file via the "Flash file" button, you need to enter the correct filename.
+- To flash a new firmware to an nRF you can erase the whole chip to then flash an uploaded file via the "Flash file" button, you need to enter the correct filename.
 - To dump the flash content of an nRF enter a filename an offset if wanted and a size of bytes in dezimal then click the "Dump to file" button and wait for it.
 - To Glitch the nRF use the Delay input to find the right spot on where to glitch, it should be near the small voltage drop of the DEC1 line, best is to have an Osci connected to see what is happening but you can also just blindly find the Delay as the delay will increase and the ESP32 will notify about a suffesfull glitch after clicking "Enable Glitcher" you can change the delay time on the fly.
 
