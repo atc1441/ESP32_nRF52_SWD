@@ -98,7 +98,7 @@ void init_web()
       answer_state += "Flash state ";
       answer_state += String(percent) + "%";
     } else {
-      answer_state += "no task running, last speed " + String(get_last_speed()) + "kbpps";
+      answer_state += "no task running, last speed " + String(get_last_speed()) + "kbps";
     }
     request->send(200, "text/plain", answer_state);
   });
