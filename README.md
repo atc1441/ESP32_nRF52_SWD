@@ -8,3 +8,8 @@ To bypass the Readout protection of an nRF52 connect the following:
 3.3V Power of the nRF to GPIO 22 of the ESP32
 NFet Mosfet like shown to GPIO 5 of the ESP32 - the Gate from the Mosfet to the DEC1 pin of the nRF
 SWD pins as mentioned above
+
+
+
+
+###Needed Software
