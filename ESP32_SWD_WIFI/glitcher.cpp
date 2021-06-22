@@ -1,3 +1,7 @@
+/*
+   Copyright (c) 2021 Aaron Christophel ATCnetz.de
+   SPDX-License-Identifier: GPL-3.0-or-later
+*/
 #include <Arduino.h>
 #include "defines.h"
 #include "swd.h"
@@ -12,10 +16,7 @@
 
 #define delay_start 2000
 #define width_start 0
-/*
-   Copyright (c) 2021 Aaron Christophel ATCnetz.de
-   SPDX-License-Identifier: GPL-3.0-or-later
-*/
+
 
 uint32_t _delay_us = 0;
 uint32_t _width = 0;
