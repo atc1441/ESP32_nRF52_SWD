@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <title>SWD Glitcher</title>
+    <style type="text/css">
+        * {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 300;
+        }
+        h2, h3, h4, h5, b {
+            font-weight: 700;
+        }
+        h1 {
+            font-weight: 900;
+        }
+        button {
+            font-weight: 400;
+        }
+        label {
+            font-weight: 500;
+        }
+        section {
+            margin: 1.5em;
+            border: 1px solid black;
+            padding: 1em;
+        }
+        section>h2 {
+            background-color: white;
+            margin-top: -1.5em;
+            width: max-content;
+            padding: 0 0.5em;
+            margin-left: 0.5em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>ESP32 SWD Flasher</h1>
+        <p>nRF52 Flasher and Glitcher</p>
+    </header>
+    Copyright (c) 2021 Aaron Christophel ATCnetz.de
+    <section>
+        <h2>Glitcher</h2>
+        <label for="delay">Delay:</label>
+        <input type="text" id="delay" name="delay" value="2000">
+        <button onclick='send("set_delay?delay="+document.getElementById("delay").value)'>Set glitch delay</button><br><br>
+        <button onclick='send("set_glitcher?state=1")'>Enable glitcher</button><button onclick='send("set_glitcher?state=0")'>Disable glitcher</button><br><br>
+    </section>
+    
+    <section>
+        <h2>SWD</h2>
+        <button onclick='send("set_swd?cmd=init")'>Init SWD</button>
+        <button onclick='send("set_swd?cmd=lock_state")'>Read nRF lock state</button>
+        <button onclick='send("set_swd?cmd=set_lock")'>Set nRF lock bit</button>
+        <button onclick='send("set_swd?cmd=erase_all")'>Erase nRF</button>
+        <button onclick='send("set_swd?cmd=set_reset")'>Reset nRF</button>
+        <br><br>
+        
+        <label for="flash_address">Address</label>
+        <input type="text" id="flash_address" name="flash_address" value="0">
+        <label for="flash_value">Value</label>
+        <input type="text" id="flash_value" name="flash_value" value="0">
+        <button onclick='send("set_swd?cmd=read_register&address="+document.getElementById("flash_address").value)'>Read nRF register</button>
+        <button onclick='send("set_swd?cmd=write_register&address="+document.getElementById("flash_address").value + "&value="+document.getElementById("flash_value").value)'>Write nRF register</button>
+        <button onclick='send("set_swd?cmd=write_flash&address="+document.getElementById("flash_address").value + "&value="+document.getElementById("flash_value").value)'>Write nRF flash</button><br><br>
+        
+        <button onclick='send("set_swd?cmd=power_on")'>Power ON</button>
+        <button onclick='send("set_swd?cmd=power_off")'>Power OFF</button>
+        
+    </section>
+    
+    <section>
+        <h2>Flash</h2>
+        <button onclick='send("flash_cmd?cmd=erase_all")'>Erase nRF</button>
+        <button onclick='send("set_swd?cmd=set_reset")'>Reset nRF</button>
+        <br><br>
+        
+        <label for="flash_page_address">Address</label>
+        <input type="text" id="flash_page_address" name="flash_address" value="0">
+        <button onclick='send("flash_cmd?cmd=page_erase&address="+document.getElementById("flash_page_address").value)'>Erase nRF page</button>
+        <br><br>
+       
+        <label for="flash_file">Flash file</label>
+        <input type="text" id="flash_file" name="flash_file" value="file.bin">
+        <label for="flash_file_offset">Offset</label>
+        <input type="text" id="flash_file_offset" name="flash_file_offset" value="0">
+        <button onclick='send("flash_cmd?cmd=flash_file&file="+document.getElementById("flash_file").value+"&offset="+document.getElementById("flash_file_offset").value)'>Flash file</button>
+        <br><br>
+       
+        <label for="dump_file">Dump flash to file</label>
+        <input type="text" id="dump_file" name="dump_file" value="file_dump.bin">
+        <label for="dump_file_offset">Offset</label>
+        <input type="text" id="dump_file_offset" name="dump_file_offset" value="0">
+        <label for="dump_file_size">Size</label>
+        <input type="text" id="dump_file_size" name="dump_file_size" value="100">
+        <button onclick='send("flash_cmd?cmd=dump_flash&file="+document.getElementById("dump_file").value+"&offset="+document.getElementById("dump_file_offset").value+"&size="+document.getElementById("dump_file_size").value)'>Dump to file</button>
+       
+    </section>
+
+    <section>
+        <h2>Status</h2>
+        <div id="answer"></div>
+        <div id="content"></div>
+        <div id="dot"></div>
+    </section>
+
+    <section>
+        <h2>nRF infos</h2>
+        <div id="main_infos"></div>
+    </section>
+
+    <section>
+        <h2>Infos</h2>
+        This software brings you the possibility to Read and Write the internal Flash of the Nordic nRF52 series with an ESP32.<br>
+        
+        To flash an nRF52 connect the SWD pins: CLK to GPIO 21 and DIO to GPIO 19 of the ESP32. Also connect the nRF52 GND to the ESP32 and power the nRF52 as needed.<br>
+        
+    </section>
+
+    <script>
+        const infosDiv = document.getElementById('main_infos');
+        const answerDiv = document.getElementById('answer');
+        const contentDiv = document.getElementById("content");
+        const progressMarker = document.getElementById("dot");
+
+        async function send(url) {
+            try {
+                const resp = await fetch(url, { method: "POST" })
+                answerDiv.innerHTML = await resp.text()
+            } catch (err) {
+                answerDiv.innerHTML = "ERROR: " + err
+            }
+        }
+        
+        async function send_post(url,data_text) {
+            try {
+        
+        var data = new FormData();
+        data.append('text', data_text);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', url, true);
+        xhr.onload = function () {
+          answerDiv.innerHTML = this.responseText;
+          console.log(this.responseText);
+        };
+        xhr.send(data);
+            } catch (err) {
+                answerDiv.innerHTML = "ERROR: " + err
+            }
+        }
+        
+
+        async function get(url) {
+            try {
+                const resp = await fetch(url, { method: "GET" })
+                answerDiv.innerHTML = await resp.text()
+            } catch (err) {
+                answerDiv.innerHTML = "ERROR: " + err
+            }
+        }
+        
+        let new_cmd = "2";
+        let tikTok = false;
+        async function updateStatus() {
+            try {
+                const resp = await fetch("get_state?cmd="+new_cmd, { method: "GET" })
+                new_cmd = "0";
+                if (resp.status !== 200) {
+                    throw new Error(`unexpected status code ${resp.status}`);
+                }
+                let response_text = await resp.text();
+                console.log('Answer: ' + response_text)
+                if(response_text.indexOf(';info;') == 0){
+                  let parts = response_text.split(';');
+                  infosDiv.innerHTML = '<br>';
+                  if(parts[2]== "2"){
+                  infosDiv.innerHTML += 'nRF is connected ';
+                  if(parts[14] == "0")
+                  infosDiv.innerHTML += 'and lock bit set, so a good power glitch';
+                  infosDiv.innerHTML += '<br>';
+                  infosDiv.innerHTML += '<br>';
+                  infosDiv.innerHTML += 'Flash_size: '+ Math.floor(parts[3]/1024)+ ' kByte / 0x'+parseInt(parts[3]).toString(16)+ '<br>';
+                  infosDiv.innerHTML += 'Part: '+ parseInt(parts[7]).toString(16)+'<br>';
+                  infosDiv.innerHTML += '<br>';
+                  infosDiv.innerHTML += 'SoftDevice: 0x'+parseInt(parts[13]).toString(16)+'<br>';
+                  infosDiv.innerHTML += '<br>';
+                  infosDiv.innerHTML += 'ESP32 Memory size: '+ Math.floor(parts[10]/1024)+' kByte<br>';
+                  infosDiv.innerHTML += 'ESP32 free Memory: '+ Math.floor(parts[12]/1024)+' kByte<br>';
+                  infosDiv.innerHTML += '<br>';
+                  }else{
+                    if(parts[2]== "1")
+                      infosDiv.innerHTML += 'nRF connected but locked<br>';
+                    else
+                      infosDiv.innerHTML += 'nRF not connected<br>';
+                  infosDiv.innerHTML += '<br>';
+                  infosDiv.innerHTML += 'ESP32 Memory size: '+ Math.floor(parts[10]/1024)+' kByte<br>';
+                  infosDiv.innerHTML += 'ESP32 free Memory: '+ Math.floor(parts[12]/1024)+' kByte<br>';
+                  infosDiv.innerHTML += '<br>';
+                  }
+                  new_cmd = "1";
+                }else{
+                  contentDiv.innerHTML = response_text;
+                }
+                tikTok = !tikTok;
+                progressMarker.innerText = tikTok ? "⚫" : "⚪";
+            } catch (err) {
+                contentDiv.innerHTML = "<b>ERROR:</b> " + err;
+                progressMarker.innerText = "🔴";
+            } finally {
+                setTimeout(updateStatus, 1000 + Math.floor(Math.random() * 100));
+            }
+        }
+
+        updateStatus();
+    </script>
+</body>
+
+</html>
