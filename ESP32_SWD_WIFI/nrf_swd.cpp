@@ -47,6 +47,10 @@ uint32_t nrf_begin(bool muted) {
   return temp;
 }
 
+uint8_t is_nrf_connected(){
+  return nrf_ufcr.connected;
+}
+
 void do_nrf_swd() {
   static uint32_t CSW = 0;
   if (is_connected) {

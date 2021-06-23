@@ -8,6 +8,7 @@
 
 
 uint32_t nrf_begin(bool muted = false);
+uint8_t is_nrf_connected();
 void do_nrf_swd();
 uint32_t nrf_read_port(bool APorDP, uint8_t address);
 void nrf_write_port(bool APorDP, uint8_t address, uint32_t value);

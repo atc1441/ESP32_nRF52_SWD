@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap"
         rel="stylesheet">
-    <title>SWD Glitcher</title>
+    <title>SWD Flasher</title>
     <style type="text/css">
         * {
             font-family: 'Roboto', sans-serif;
@@ -51,7 +51,10 @@
         <label for="delay">Delay:</label>
         <input type="text" id="delay" name="delay" value="2000">
         <button onclick='send("set_delay?delay="+document.getElementById("delay").value)'>Set glitch delay</button><br><br>
-        <button onclick='send("set_glitcher?state=1")'>Enable glitcher</button><button onclick='send("set_glitcher?state=0")'>Disable glitcher</button><br>
+        <button onclick='send("set_glitcher?state=1")'>Enable glitcher</button><button onclick='send("set_glitcher?state=0")'>Disable glitcher</button>
+        <br><br>
+        <button onclick='send("set_glitcher?state=dump_full_flash")'>Dump full flash</button>
+        <button onclick='send("set_glitcher?state=dump_full_uicr")'>Dump UICR</button>
     </section>
     
     <section>
@@ -82,26 +85,26 @@
         <button onclick='send("set_swd?cmd=set_reset")'>Reset nRF</button>
         <br><br>
         
-        <label for="flash_page_address">Address</label>
+        <label for="flash_page_address">Address 0x</label>
         <input type="text" id="flash_page_address" name="flash_address" value="0">
         <button onclick='send("flash_cmd?cmd=page_erase&address="+document.getElementById("flash_page_address").value)'>Erase nRF page</button>
         <br><br>
        
         <label for="flash_file">Flash file</label>
         <input type="text" id="flash_file" name="flash_file" value="file.bin">
-        <label for="flash_file_offset">Offset</label>
+        <label for="flash_file_offset">Offset 0x</label>
         <input type="text" id="flash_file_offset" name="flash_file_offset" value="0">
         <button onclick='send("flash_cmd?cmd=flash_file&file="+document.getElementById("flash_file").value+"&offset="+document.getElementById("flash_file_offset").value)'>Flash file</button>
         <br><br>
        
         <label for="dump_file">Dump flash to file</label>
         <input type="text" id="dump_file" name="dump_file" value="file_dump.bin">
-        <label for="dump_file_offset">Offset</label>
+        <label for="dump_file_offset">Offset 0x</label>
         <input type="text" id="dump_file_offset" name="dump_file_offset" value="0">
-        <label for="dump_file_size">Size</label>
+        <label for="dump_file_size">Size 0x</label>
         <input type="text" id="dump_file_size" name="dump_file_size" value="100">
         <button onclick='send("flash_cmd?cmd=dump_flash&file="+document.getElementById("dump_file").value+"&offset="+document.getElementById("dump_file_offset").value+"&size="+document.getElementById("dump_file_size").value)'>Dump to file</button>
-       
+       <br>(All values in HEX)
     </section>
 
     <section>

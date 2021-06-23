@@ -115,6 +115,12 @@ void init_web()
   });
 
   server.on("/set_swd", HTTP_POST, [](AsyncWebServerRequest * request) {
+
+    if (get_glitcher()) {
+      request->send(200, "text/plain", "ERROR Glitcher is running");
+      return;
+    }
+
     if (request->hasParam("cmd"))
     {
       String swd_cmd = request->getParam("cmd")->value();
@@ -136,68 +142,78 @@ void init_web()
         set_power(LOW);
         answer = "Power off";
       }
-      else if (swd_cmd == "lock_state")
-      {
-        answer = "the nRF is " + String(nrf_read_lock_state() ? "unlocked" : "locked");
-      }
-      else if (swd_cmd == "set_lock")
-      {
-        write_flash(0x10001208, 0x00);
-        nrf_soft_reset();
-        nrf_begin();
-        answer = "the nRF is now " + String(nrf_read_lock_state() ? "unlocked" : "locked");
-      }
-      else if (swd_cmd == "set_reset")
-      {
-        nrf_soft_reset();
-        answer = "Ok reset";
-      }
-      else if (swd_cmd == "erase_all")
-      {
-        nrf_erase_all();
-        answer = "nRF erased if connected";
-      }
-      else if (swd_cmd == "read_register")
-      {
-        String read_address = "";
-        if (request->hasParam("address"))
-          read_address = request->getParam("address")->value();
-        char read_flash_string[100] = {0};
-        sprintf(read_flash_string, "Register read address: 0x%08x value: 0x%08x", hstol(read_address), read_register(hstol(read_address)));
-        answer = read_flash_string;
-      }
-      else if (swd_cmd == "write_register")
-      {
-        String write_address = "";
-        String write_value = "";
-        if (request->hasParam("address") && request->hasParam("value")) {
-          write_address = request->getParam("address")->value();
-          write_value = request->getParam("value")->value();
-        } else {
+      else {
+
+        if (is_nrf_connected() == 0) {
+          request->send(200, "text/plain", "ERROR nRF not connected");
+          return;
+        }
+
+        if (swd_cmd == "set_reset")
+        {
+          nrf_soft_reset();
+          answer = "Ok reset";
+        }
+        else if (swd_cmd == "erase_all")
+        {
+          nrf_erase_all();
+          answer = "nRF erased";
+        } else if (is_nrf_connected() == 1) {
+          request->send(200, "text/plain", "ERROR nRF is locked");
+          return;
+        } else if (swd_cmd == "lock_state")
+        {
+          answer = "the nRF is " + String(nrf_read_lock_state() ? "unlocked" : "locked");
+        }
+        else if (swd_cmd == "set_lock")
+        {
+          write_flash(0x10001208, 0x00);
+          nrf_soft_reset();
+          nrf_begin();
+          answer = "the nRF is now " + String(nrf_read_lock_state() ? "unlocked" : "locked");
+        }
+        else if (swd_cmd == "read_register")
+        {
+          String read_address = "";
+          if (request->hasParam("address"))
+            read_address = request->getParam("address")->value();
+          char read_flash_string[100] = {0};
+          sprintf(read_flash_string, "Register read address: 0x%08x value: 0x%08x", hstol(read_address), read_register(hstol(read_address)));
+          answer = read_flash_string;
+        }
+        else if (swd_cmd == "write_register")
+        {
+          String write_address = "";
+          String write_value = "";
+          if (request->hasParam("address") && request->hasParam("value")) {
+            write_address = request->getParam("address")->value();
+            write_value = request->getParam("value")->value();
+          } else {
+            request->send(200, "text/plain", "Wrong parameter");
+            return;
+          }
+          write_register(hstol(write_address), hstol(write_value));
+          answer = "Register write address: 0x" + String(write_address) + " value: 0x" + String(write_value);
+        }
+        else if (swd_cmd == "write_flash")
+        {
+          String write_address = "";
+          String write_value = "";
+          if (request->hasParam("address") && request->hasParam("value")) {
+            write_address = request->getParam("address")->value();
+            write_value = request->getParam("value")->value();
+          } else {
+            request->send(200, "text/plain", "Wrong parameter");
+            return;
+          }
+          write_flash(hstol(write_address), hstol(write_value));
+          answer = "Flash write address: 0x" + String(write_address) + " value: 0x" + String(write_value);
+        }
+        else
+        {
           request->send(200, "text/plain", "Wrong parameter");
           return;
         }
-        write_register(hstol(write_address), hstol(write_value));
-        answer = "Register write address: 0x" + String(write_address) + " value: 0x" + String(write_value);
-      }
-      else if (swd_cmd == "write_flash")
-      {
-        String write_address = "";
-        String write_value = "";
-        if (request->hasParam("address") && request->hasParam("value")) {
-          write_address = request->getParam("address")->value();
-          write_value = request->getParam("value")->value();
-        } else {
-          request->send(200, "text/plain", "Wrong parameter");
-          return;
-        }
-        write_flash(hstol(write_address), hstol(write_value));
-        answer = "Flash write address: 0x" + String(write_address) + " value: 0x" + String(write_value);
-      }
-      else
-      {
-        request->send(200, "text/plain", "Wrong parameter");
-        return;
       }
       request->send(200, "text/plain", "Ok: " + String(answer));
       return;
@@ -206,6 +222,19 @@ void init_web()
   });
 
   server.on("/flash_cmd", HTTP_POST, [](AsyncWebServerRequest * request) {
+
+    if (get_glitcher()) {
+      request->send(200, "text/plain", "ERROR Glitcher is running");
+      return;
+    }
+    if (is_nrf_connected() == 0) {
+      request->send(200, "text/plain", "ERROR nRF not connected");
+      return;
+    } else if (is_nrf_connected() == 1) {
+      request->send(200, "text/plain", "ERROR nRF is locked");
+      return;
+    }
+
     if (request->hasParam("cmd"))
     {
       String swd_cmd = request->getParam("cmd")->value();
@@ -245,7 +274,7 @@ void init_web()
         }
 
         if (request->hasParam("offset")) {
-          offset = request->getParam("offset")->value().toInt();
+          offset = hstol(request->getParam("offset")->value());
         }
 
         set_write_flash(offset, "/" + filename);
@@ -258,10 +287,14 @@ void init_web()
         uint32_t size = 0;
         if (request->hasParam("file") && request->hasParam("offset") && request->hasParam("size")) {
           filename = request->getParam("file")->value();
-          offset = request->getParam("offset")->value().toInt();
-          size = request->getParam("size")->value().toInt();
+          offset = hstol(request->getParam("offset")->value());
+          size = hstol(request->getParam("size")->value());
         } else {
           request->send(200, "text/plain", "Wrong parameter");
+          return;
+        }
+        if (size > (SPIFFS.totalBytes() - SPIFFS.usedBytes())) {
+          request->send(200, "text/plain", "Not enough free space on the ESP32");
           return;
         }
         set_read_flash(offset, size, "/" + filename);
@@ -281,9 +314,62 @@ void init_web()
   server.on("/set_glitcher", HTTP_POST, [](AsyncWebServerRequest * request) {
     if (request->hasParam("state"))
     {
-      int new_state = request->getParam("state")->value().toInt();
-      request->send(200, "text/plain", "Ok set glitcher: " + String(new_state));
-      set_glitcher(new_state);
+      String new_state = request->getParam("state")->value();
+      if (new_state == "1") {
+        request->send(200, "text/plain", "Ok set glitcher: 1");
+        set_glitcher(1);
+      } else if (new_state == "0") {
+        request->send(200, "text/plain", "Ok set glitcher: 0");
+        set_glitcher(0);
+      } else if (new_state == "dump_full_flash") {
+
+        if (get_glitcher()) {
+          request->send(200, "text/plain", "ERROR Glitcher is running");
+          return;
+        }
+        if (is_nrf_connected() == 0) {
+          request->send(200, "text/plain", "ERROR nRF not connected");
+          return;
+        } else if (is_nrf_connected() == 1) {
+          request->send(200, "text/plain", "ERROR nRF is locked");
+          return;
+        }
+
+        nrf_info_struct nrf_ufcr;
+        get_new_main_info(&nrf_ufcr);
+
+        if (nrf_ufcr.flash_size > (SPIFFS.totalBytes() - SPIFFS.usedBytes())) {
+          request->send(200, "text/plain", "Not enough free space on the ESP32");
+          return;
+        }
+
+        String filename = "/full_flash.bin";
+        set_read_flash(0, nrf_ufcr.flash_size, filename);
+
+        request->send(200, "text/plain", "Ok create task full dump");
+      } else if (new_state == "dump_full_uicr") {
+
+        if (get_glitcher()) {
+          request->send(200, "text/plain", "ERROR Glitcher is running");
+          return;
+        }
+        if (is_nrf_connected() == 0) {
+          request->send(200, "text/plain", "ERROR nRF not connected");
+          return;
+        } else if (is_nrf_connected() == 1) {
+          request->send(200, "text/plain", "ERROR nRF is locked");
+          return;
+        }
+
+        if (0x1000 > (SPIFFS.totalBytes() - SPIFFS.usedBytes())) {
+          request->send(200, "text/plain", "Not enough free space on the ESP32");
+          return;
+        }
+        String filename = "/full_uicr.bin";
+        set_read_flash(0x10001000, 0x1000, filename);
+
+        request->send(200, "text/plain", "Ok create UICR dump");
+      }
       return;
     }
     request->send(200, "text/plain", "Wrong parameter");
