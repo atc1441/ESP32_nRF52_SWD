@@ -43,7 +43,7 @@ This repo is made together with this explanation video:(click on it)
 - To dump the flash content of an nRF enter a filename an offset if wanted and a size of bytes in dezimal then click the "Dump to file" button and wait for it.
 - To Glitch the nRF use the Delay input to find the right spot on where to glitch, it should be near the small voltage drop of the DEC1 line, best is to have an Osci connected to see what is happening but you can also just blindly find the Delay as the delay will increase and the ESP32 will notify about a suffesfull glitch after clicking "Enable Glitcher" you can change the delay time on the fly.
 
-### ESP32 Glitcher schematics:
+### ESP32 Glitcher schematic:
 
 <img width="800" alt="" src="https://github.com/atc1441/ESP32_nRF52_SWD/blob/main/ESP32_nRF_glitcher_schematic.jpg">
 
