@@ -2,6 +2,8 @@
 This software brings you the possibility to Read and Write the internal Flash of the Nordic nRF52 series with an ESP32 using the SWD interface.
 A tool to exploit the APPROTECT vulnerability is included as well.
 
+### You can support my work via PayPal: https://paypal.me/hoverboard1 this keeps projects like this coming.
+
 To flash an nRF52 connect the SWD pins: CLK to GPIO 21 and DIO to GPIO 19 of the ESP32. Also connect the nRF52 GND to the ESP32 and power the nRF52 as needed.
 
 To bypass the Readout protection of an nRF52 connect the following:
