@@ -221,6 +221,24 @@ void init_web()
     request->send(200, "text/plain", "Wrong parameter");
   });
 
+  server.on("/flash_file", HTTP_POST, [](AsyncWebServerRequest *request){
+    request->redirect("/");
+  },[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final){
+    Serial.print("received data ");
+    Serial.print(filename);
+    Serial.print(" ");
+    Serial.print(index);
+    Serial.print(" ");
+    Serial.print(len);
+    Serial.print(" ");
+    Serial.println(final);
+
+    int posi = 0;
+
+    nrf_write_bank((posi + index)/4, (uint32_t *)data, len/4);
+
+  });
+
   server.on("/flash_cmd", HTTP_POST, [](AsyncWebServerRequest * request) {
 
     if (get_glitcher()) {

@@ -96,6 +96,15 @@
         <input type="text" id="flash_file_offset" name="flash_file_offset" value="0">
         <button onclick='send("flash_cmd?cmd=flash_file&file="+document.getElementById("flash_file").value+"&offset="+document.getElementById("flash_file_offset").value)'>Flash file</button>
         <br><br>
+
+        <label for="flash_uploaded_file">Flash uploaded file</label>
+        <form action="flash_file" method="post" enctype="multipart/form-data">
+            <input type="file" id="flash_file" name="flash_file">
+            <label for="flash_file_offset">Offset 0x</label>
+            <input type="text" id="flash_file_offset" name="flash_file_offset" value="0">
+            <input type="submit" value="Flash uploaded file" name="submit">
+        </form>
+        <br><br>
        
         <label for="dump_file">Dump flash to file</label>
         <input type="text" id="dump_file" name="dump_file" value="file_dump.bin">
