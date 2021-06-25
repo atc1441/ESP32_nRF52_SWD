@@ -9,6 +9,10 @@
 #include "nrf_swd.h"
 #include "swd.h"
 
+#ifdef ENABLE_OTA
+#include <ArduinoOTA.h>
+#endif
+
 void setup() {
   Serial.begin(115200);
   swd_begin();
@@ -16,9 +20,16 @@ void setup() {
   init_web();
   delay(1000);
   Serial.printf("SWD Id: 0x%08x\r\n",nrf_begin());
+
+#ifdef ENABLE_OTA
+  ArduinoOTA.begin();
+#endif
 }
 
 void loop() {
+#ifdef ENABLE_OTA
+  ArduinoOTA.handle();
+#endif
   if (get_glitcher()) {
     do_glitcher();
   } else {
