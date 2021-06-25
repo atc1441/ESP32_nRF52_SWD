@@ -33,6 +33,9 @@ This repo is made together with these explanation videos:(click on it)
 
 ### HowTo:
 
+#### Arduino:
+(It is also possible to use PlatformIO)
+
 - Open the "ESP32_SWD_WIFI.ino" file with Arduino and select the "ESP32 Dev Module", Make sure to select "No OTA (1MB App / 3MB SPIFFS)" as config for the ESP32 to have more space available.
 - Select the ESP32 COM port
 - Click on Upload and wait for a succesfull upload
@@ -46,6 +49,8 @@ This repo is made together with these explanation videos:(click on it)
 - To flash a new firmware to an nRF you can erase the whole chip to then flash an uploaded file via the "Flash file" button, you need to enter the correct filename.
 - To dump the flash content of an nRF enter a filename an offset if wanted and a size of bytes in dezimal then click the "Dump to file" button and wait for it.
 - To Glitch the nRF use the Delay input to find the right spot on where to glitch, it should be near the small voltage drop of the DEC1 line, best is to have an Osci connected to see what is happening but you can also just blindly find the Delay as the delay will increase and the ESP32 will notify about a suffesfull glitch after clicking "Enable Glitcher" you can change the delay time on the fly.
+
+
 
 ### ESP32 Glitcher schematic:
 
