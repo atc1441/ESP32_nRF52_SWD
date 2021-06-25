@@ -178,7 +178,7 @@ void init_web()
           if (request->hasParam("address"))
             read_address = request->getParam("address")->value();
           char read_flash_string[100] = {0};
-          sprintf(read_flash_string, "Register read address: 0x%08x value: 0x%08x", hstol(read_address), read_register(hstol(read_address)));
+          sprintf(read_flash_string, "Register read address: 0x%08x value: 0x%08x", (unsigned int)hstol(read_address), read_register(hstol(read_address)));
           answer = read_flash_string;
         }
         else if (swd_cmd == "write_register")

@@ -52,7 +52,6 @@ uint8_t is_nrf_connected(){
 }
 
 void do_nrf_swd() {
-  static uint32_t CSW = 0;
   if (is_connected) {
     if (_task_write_flash) {
       flash_file(_offset, _filename);
@@ -88,7 +87,6 @@ void nrf_write_port(bool APorDP, uint8_t address, uint32_t value) {
 }
 
 void nrf_abort_all() {
-  uint32_t temp = 0;
   nrf_write_port(0, DP_ABORT, 0x1e);
   nrf_write_port(0, DP_CTRLSTAT, 0x50000000);
 }
@@ -124,7 +122,7 @@ uint32_t read_register(uint32_t address, bool muted) {
   bool state2 = AP_Read(AP_DRW, temp);
   bool state3 = DP_Read(DP_RDBUFF, temp);
   bool state4 = DP_Read(DP_RDBUFF, temp);
-  if (!muted)Serial.printf("S1:%i,S2:%i,S3:%i,S4:%i Read Register: 0x%08x : 0x%08x\r\n", state1, state2, state3, state4, address, temp);
+  if (!muted)Serial.printf("%i%i%i%i Read Register: 0x%08x : 0x%08x\r\n", state1, state2, state3, state4, address, temp);
   return temp;
 }
 
@@ -133,7 +131,7 @@ void write_register(uint32_t address, uint32_t value, bool muted) {
   bool state1 = AP_Write(AP_TAR, address);
   bool state2 = AP_Write(AP_DRW, value);
   bool state3 = DP_Read(DP_RDBUFF, temp);
-  if (!muted)Serial.printf("S1:%i,S2:%i,S3:%i Write Register: 0x%08x : 0x%08x\r\n", state1, state2, state3, address, value);
+  if (!muted)Serial.printf("%i%i%i Write Register: 0x%08x : 0x%08x\r\n", state1, state2, state3, address, value);
 }
 
 void write_flash(uint32_t address, uint32_t value) {
@@ -188,7 +186,7 @@ uint8_t flash_file(uint32_t offset, String & path) {
 
   file.close();
   _speed = (float)((float)(file_size / (float)(millis() - millis_start)));
-  Serial.printf("Done flashing file, it took %ims speed: %.4fkbs\r\n", millis() - millis_start, _speed);
+  Serial.printf("Done flashing file, it took %ims speed: %.4fkbs\r\n", (int)(millis() - millis_start), _speed);
   return 0;
 }
 
@@ -201,7 +199,6 @@ uint8_t dump_flash_to_file(uint32_t offset, uint32_t read_size, String & path) {
     return 1;
   }
 
-  uint32_t temp;
   Serial.printf("Going to read %i bytes to file\r\n", read_size);
   long millis_start = millis();
 
@@ -216,7 +213,7 @@ uint8_t dump_flash_to_file(uint32_t offset, uint32_t read_size, String & path) {
 
   file.close();
   _speed = (float)((float)(read_size / (float)(millis() - millis_start)));
-  Serial.printf("Done reading file, it took %ims speed: %.4fkbs\r\n", millis() - millis_start, _speed);
+  Serial.printf("Done reading file, it took %ims speed: %.4fkbs\r\n", (int)(millis() - millis_start), _speed);
   return 0;
 }
 
@@ -342,7 +339,6 @@ void nrf_soft_reset() {
 }
 
 void nrf_erase_all() {
-  uint32_t temp = 0;
   nrf_port_selection(1);
   nrf_write_port(1, AP_NRF_ERASEALL, 1);
   delayMicroseconds(100);
