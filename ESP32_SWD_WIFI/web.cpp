@@ -436,7 +436,9 @@ void init_web()
 
   server.on(
       "/flash_file", HTTP_POST, [](AsyncWebServerRequest *request)
-      { request->redirect("/"); },
+      { 
+        request->send(200, "text/plain", "Upload complete!");
+      },
       [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
       {
         Serial.printf("received data file:%s index:%d len:%d final:%d", filename.c_str(), index, len, final);
