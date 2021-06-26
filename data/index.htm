@@ -136,7 +136,17 @@
         <button
             onclick='send("flash_cmd?cmd=dump_flash&file="+document.getElementById("dump_file").value+"&offset="+document.getElementById("dump_file_offset").value+"&size="+document.getElementById("dump_file_size").value)'>Dump
             to file</button>
-        <br>(All values in HEX)
+        <br><br>
+        
+        <label for="download_flash">Download flash contents</label>
+        <label for="download_flash_offset">Offset 0x</label>
+        <input type="text" id="download_flash_offset" name="download_flash_offset" value="0">
+        <label for="download_flash_size">Size 0x</label>
+        <input type="text" id="download_flash_size" name="download_flash_size" value="100">
+        <button onclick='window.open("/download_flash?offset="+document.getElementById("download_flash_offset").value+"&len="+document.getElementById("download_flash_size").value)'>Download flash</button>
+        <br><br>
+        
+        (All values in HEX)
     </section>
 
     <section>
