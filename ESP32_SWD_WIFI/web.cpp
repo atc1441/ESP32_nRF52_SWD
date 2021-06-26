@@ -437,9 +437,7 @@ void init_web()
 
   server.on(
       "/flash_file", HTTP_POST, [](AsyncWebServerRequest *request)
-      { 
-        request->send(200, "text/plain", "Upload complete!");
-      },
+      { request->send(200, "text/plain", "Upload complete!"); },
       [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
       {
         Serial.printf("received data file:%s index:%d len:%d final:%d\r\n", filename.c_str(), index, len, final);
@@ -466,7 +464,6 @@ void init_web()
           if (size_flag || final)
           {
             Serial.printf("Ok gonna flash bank final: %i, offset:%08x, len: %i len_left %i\r\n", final, _direct_offset + _main_offset, _direct_position, len);
-            Serial.printf("%02x %02x %02x %02x %02x %02x\r\n", _direct_buffer[0], _direct_buffer[1], _direct_buffer[2], _direct_buffer[3], _direct_buffer[4], _direct_buffer[5]);
             nrf_write_bank(_direct_offset + _main_offset, (uint32_t *)_direct_buffer, _direct_position);
             _direct_offset += _direct_position;
             _direct_position = 0;
