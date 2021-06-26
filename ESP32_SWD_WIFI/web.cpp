@@ -480,49 +480,46 @@ void init_web()
             {
               nrf_info_struct nrf_ufcr;
               get_new_main_info(&nrf_ufcr);
-              int download_len_word = nrf_ufcr.flash_size / 4;
+              int download_len = nrf_ufcr.flash_size;
 
               static uint32_t offset = 0;
-
-              if (request->hasParam("len"))
-              {
-                int download_len_req = hstol(request->getParam("len")->value());
-                if (download_len_req > download_len_word * 4)
-                {
-                  //keep default
-                }
-                else if (download_len_req % 4)
-                {
-                  download_len_word = download_len_req / 4 + 1;
-                }
-                else
-                {
-                  download_len_word = download_len_req / 4;
-                }
-              }
 
               if (request->hasParam("offset"))
               {
                 offset = hstol(request->getParam("offset")->value());
+
+                if (offset > nrf_ufcr.flash_size) {
+                  request->send(400, "text/html", "ERROR: Invalid offset!"); 
+                  return;
+                }
               }
 
-              Serial.printf("reading flash: offset:0x%X download_len_word:%d\n", offset, download_len_word);
+              if (request->hasParam("len"))
+              {
+                download_len = hstol(request->getParam("len")->value());
+                if (offset + download_len > nrf_ufcr.flash_size) {
+                  request->send(400, "text/html", "ERROR: Too big download length!"); 
+                  return;
+                }
+              }
 
-              AsyncWebServerResponse *response = request->beginResponse("application/octet-stream", download_len_word * 4, [](uint8_t *buffer, size_t maxLen, size_t index) -> size_t
-                                                                        {
-                                                                          int read_len_word = maxLen / 4; //if we always send multiples of 4, index can only be multiple of 4
+              if (offset + download_len > nrf_ufcr.flash_size) {
+                download_len = nrf_ufcr.flash_size - offset;
+              }
 
-                                                                          Serial.printf("reading flash: start:0x%X offset:0x%X maxLen:%d read_len_word:%d\n", offset, index, maxLen, read_len_word);
+              Serial.printf("reading flash: offset:0x%X download_len:%d\n", offset, download_len);
 
-                                                                          uint32_t *word_buffer = (uint32_t *)buffer;
+              AsyncWebServerResponse *response = request->beginResponse("application/octet-stream", download_len, [](uint8_t *buffer, size_t maxLen, size_t index) -> size_t
+                {
+                  Serial.printf("handle download: index:0x%X maxLen:%d offset:0x%X\n", index, maxLen, offset);
 
-                                                                          if (read_len_word > 0)
-                                                                          {
-                                                                            nrf_read_bank(offset + index, word_buffer, read_len_word * 4);
-                                                                          }
+                  if (maxLen > 0)
+                  {
+                    return nrf_read_bank_bytes(offset + index, buffer, maxLen);
+                  }
 
-                                                                          return read_len_word * 4;
-                                                                        });
+                  return 0;
+                });
 
               response->addHeader("Content-Disposition", "attachment; filename=\"flash.bin\"");
               request->send(response);
