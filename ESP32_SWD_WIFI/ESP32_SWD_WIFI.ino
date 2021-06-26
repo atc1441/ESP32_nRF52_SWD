@@ -13,26 +13,31 @@
 #include <ArduinoOTA.h>
 #endif
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   swd_begin();
   glitcher_begin();
   init_web();
   delay(1000);
-  Serial.printf("SWD Id: 0x%08x\r\n",nrf_begin());
+  Serial.printf("SWD Id: 0x%08x\r\n", nrf_begin());
 
 #ifdef ENABLE_OTA
   ArduinoOTA.begin();
 #endif
 }
 
-void loop() {
+void loop()
+{
 #ifdef ENABLE_OTA
   ArduinoOTA.handle();
 #endif
-  if (get_glitcher()) {
+  if (get_glitcher())
+  {
     do_glitcher();
-  } else {
+  }
+  else
+  {
     do_nrf_swd();
   }
 }

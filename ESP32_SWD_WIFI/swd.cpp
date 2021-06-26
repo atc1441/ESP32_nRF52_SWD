@@ -11,12 +11,14 @@
 
 bool turn_state = 0;
 
-void swd_begin() {
+void swd_begin()
+{
   pinMode(swd_clock_pin, OUTPUT);
   pinMode(swd_data_pin, INPUT_PULLUP);
 }
 
-uint32_t swd_init() { //Returns the ID
+uint32_t swd_init()
+{ //Returns the ID
   swd_write(0xffffffff, 32);
   swd_write(0xffffffff, 32);
   swd_write(0xe79e, 16);
@@ -30,13 +32,14 @@ uint32_t swd_init() { //Returns the ID
   return idcode;
 }
 
-
 bool AP_Write(unsigned addr, uint32_t data)
 {
   uint8_t retry = 15;
-  while (retry--) {
+  while (retry--)
+  {
     bool state = swd_transfer(addr, 1, 0, data);
-    if (state)return true;
+    if (state)
+      return true;
   }
   return false;
 }
@@ -44,9 +47,11 @@ bool AP_Write(unsigned addr, uint32_t data)
 bool AP_Read(unsigned addr, uint32_t &data)
 {
   uint8_t retry = 15;
-  while (retry--) {
+  while (retry--)
+  {
     bool state = swd_transfer(addr, 1, 1, data);
-    if (state)return true;
+    if (state)
+      return true;
   }
   return false;
 }
@@ -54,9 +59,11 @@ bool AP_Read(unsigned addr, uint32_t &data)
 bool DP_Write(unsigned addr, uint32_t data)
 {
   uint8_t retry = 15;
-  while (retry--) {
+  while (retry--)
+  {
     bool state = swd_transfer(addr, 0, 0, data);
-    if (state)return true;
+    if (state)
+      return true;
   }
   return false;
 }
@@ -64,9 +71,11 @@ bool DP_Write(unsigned addr, uint32_t data)
 bool DP_Read(unsigned addr, uint32_t &data)
 {
   uint8_t retry = 15;
-  while (retry--) {
+  while (retry--)
+  {
     bool state = swd_transfer(addr, 0, 1, data);
-    if (state)return true;
+    if (state)
+      return true;
   }
   return false;
 }
@@ -76,14 +85,19 @@ bool swd_transfer(unsigned port_address, bool APorDP, bool RorW, uint32_t &data)
   bool parity = APorDP ^ RorW ^ ((port_address >> 2) & 1) ^ ((port_address >> 3) & 1);
   uint8_t filled_address = (1 << 0) | (APorDP << 1) | (RorW << 2) | ((port_address & 0xC) << 1) | (parity << 5) | (1 << 7);
   swd_write(filled_address, 8);
-  if (swd_read(3) == 1) {
-    if (RorW) {// Reading 32 bits from SWD
+  if (swd_read(3) == 1)
+  {
+    if (RorW)
+    { // Reading 32 bits from SWD
       data = swd_read(32);
-      if (swd_read(1) == calculate_parity(data)) {
+      if (swd_read(1) == calculate_parity(data))
+      {
         swd_write(0, 1);
         return true;
       }
-    } else {// Writing 32bits to SWD
+    }
+    else
+    { // Writing 32bits to SWD
       swd_write(data, 32);
       swd_write(calculate_parity(data), 1);
       swd_write(0, 1);
@@ -104,9 +118,12 @@ bool calculate_parity(uint32_t in_data)
   return in_data;
 }
 
-void swd_write(uint32_t in_data, uint8_t bits) {
-  if (turn_state == 0)swd_turn(1);
-  while (bits--) {
+void swd_write(uint32_t in_data, uint8_t bits)
+{
+  if (turn_state == 0)
+    swd_turn(1);
+  while (bits--)
+  {
     digitalWrite(swd_data_pin, in_data & 1);
     digitalWrite(swd_clock_pin, LOW);
     delayMicroseconds(2);
@@ -116,12 +133,16 @@ void swd_write(uint32_t in_data, uint8_t bits) {
   }
 }
 
-uint32_t swd_read(uint8_t bits) {
+uint32_t swd_read(uint8_t bits)
+{
   uint32_t out_data = 0;
   uint32_t input_bit = 1;
-  if (turn_state == 1)swd_turn(0);
-  while (bits--) {
-    if (digitalRead(swd_data_pin)) {
+  if (turn_state == 1)
+    swd_turn(0);
+  while (bits--)
+  {
+    if (digitalRead(swd_data_pin))
+    {
       out_data |= input_bit;
     }
     digitalWrite(swd_clock_pin, LOW);
@@ -133,7 +154,8 @@ uint32_t swd_read(uint8_t bits) {
   return out_data;
 }
 
-void swd_turn(bool WorR) {//1 = Write 0 = Read
+void swd_turn(bool WorR)
+{ //1 = Write 0 = Read
   digitalWrite(swd_data_pin, HIGH);
   pinMode(swd_data_pin, INPUT_PULLUP);
   digitalWrite(swd_clock_pin, LOW);

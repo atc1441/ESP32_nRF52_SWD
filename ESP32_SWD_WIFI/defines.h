@@ -11,28 +11,28 @@
 #define swd_clock_pin 21
 #define swd_data_pin 19
 
-#define AP_NRF_RESET            0x00
-#define AP_NRF_ERASEALL         0x04
-#define AP_NRF_ERASEALLSTATUS   0x08
-#define AP_NRF_ERASEALL         0x04
-#define AP_NRF_APPROTECTSTATUS  0x0c
-#define AP_NRF_IDR              0xfc
+#define AP_NRF_RESET 0x00
+#define AP_NRF_ERASEALL 0x04
+#define AP_NRF_ERASEALLSTATUS 0x08
+#define AP_NRF_ERASEALL 0x04
+#define AP_NRF_APPROTECTSTATUS 0x0c
+#define AP_NRF_IDR 0xfc
 
-#define AP_CSW      0x00
-#define AP_TAR      0x04
-#define AP_DRW      0x0c
-#define AP_BD0      0x10
-#define AP_BD1      0x14
-#define AP_BD2      0x18
-#define AP_BD3      0x1c
-#define AP_DBGDRAR  0xf8
-#define AP_IDR      0xfc
+#define AP_CSW 0x00
+#define AP_TAR 0x04
+#define AP_DRW 0x0c
+#define AP_BD0 0x10
+#define AP_BD1 0x14
+#define AP_BD2 0x18
+#define AP_BD3 0x1c
+#define AP_DBGDRAR 0xf8
+#define AP_IDR 0xfc
 
-#define DP_ABORT    0x00
-#define DP_IDCODE   0x00
+#define DP_ABORT 0x00
+#define DP_IDCODE 0x00
 #define DP_CTRLSTAT 0x04
-#define DP_SELECT   0x08
-#define DP_RDBUFF   0x0c
+#define DP_SELECT 0x08
+#define DP_RDBUFF 0x0c
 
 struct nrf_info_struct
 {

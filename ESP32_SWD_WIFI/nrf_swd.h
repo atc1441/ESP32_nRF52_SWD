@@ -6,7 +6,6 @@
 #include "swd.h"
 #include "defines.h"
 
-
 uint32_t nrf_begin(bool muted = false);
 uint8_t is_nrf_connected();
 void do_nrf_swd();
@@ -23,10 +22,8 @@ void erase_page(uint32_t page);
 uint8_t flash_file(uint32_t offset, String &path);
 uint8_t dump_flash_to_file(uint32_t offset, uint32_t read_size, String &path);
 
-
 uint8_t nrf_write_bank(uint32_t address, uint32_t buffer[], int size);
 uint8_t nrf_read_bank(uint32_t address, uint32_t buffer[], int size);
-
 
 void set_write_flash(uint32_t offset, String &path);
 void set_read_flash(uint32_t offset, uint32_t file_size, String &path);
