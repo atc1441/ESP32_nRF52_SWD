@@ -21,6 +21,7 @@
 uint8_t _direct_buffer[4096] = {0};
 uint32_t _direct_position = 0;
 uint32_t _direct_offset = 0;
+uint32_t _main_offset = 0;
 long millis_start = 0;
 
 const char *http_username = "admin";
@@ -441,84 +442,94 @@ void init_web()
       },
       [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
       {
-        Serial.printf("received data file:%s index:%d len:%d final:%d", filename.c_str(), index, len, final);
+        Serial.printf("received data file:%s index:%d len:%d final:%d\r\n", filename.c_str(), index, len, final);
 
-        uint32_t offset = 0;
         uint32_t copy_len = 0;
-        if (request->hasParam("flash_up_file_offset"), true)
-        {
-          offset = hstol(request->getParam("flash_up_file_offset", true)->value());
-        }
 
         if (!index)
         {
           millis_start = millis();
+          if (request->hasParam("flash_up_file_offset"), true)
+          {
+            _main_offset = hstol(request->getParam("flash_up_file_offset", true)->value());
+          }
         }
-
+        uint32_t already_copy_len = 0;
         while (len)
         {
           bool size_flag = (_direct_position + len) > 4096;
           copy_len = size_flag ? (4096 - _direct_position) : len;
-          memcpy(&_direct_buffer[_direct_position], data, copy_len);
+          memcpy(&_direct_buffer[_direct_position], &data[already_copy_len], copy_len);
           len -= copy_len;
+          already_copy_len += copy_len;
           _direct_position += copy_len;
           if (size_flag || final)
           {
-            Serial.printf("Ok gonna flash bank final: %i, offset:%08x, len: %i\r\n", final, _direct_offset + offset, _direct_position);
-            nrf_write_bank(_direct_offset + offset, (uint32_t *)_direct_buffer, _direct_position);
+            Serial.printf("Ok gonna flash bank final: %i, offset:%08x, len: %i len_left %i\r\n", final, _direct_offset + _main_offset, _direct_position, len);
+            Serial.printf("%02x %02x %02x %02x %02x %02x\r\n", _direct_buffer[0], _direct_buffer[1], _direct_buffer[2], _direct_buffer[3], _direct_buffer[4], _direct_buffer[5]);
+            nrf_write_bank(_direct_offset + _main_offset, (uint32_t *)_direct_buffer, _direct_position);
             _direct_offset += _direct_position;
             _direct_position = 0;
           }
         }
         if (final)
+        {
           set_last_speed((float)((float)(_direct_offset + copy_len) / (float)(millis() - millis_start)));
-        _direct_offset = 0;
+          _direct_offset = 0;
+        }
       });
 
+  server.on("/download_flash", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
+              nrf_info_struct nrf_ufcr;
+              get_new_main_info(&nrf_ufcr);
+              int download_len_word = nrf_ufcr.flash_size / 4;
 
-  server.on("/download_flash", HTTP_GET, [](AsyncWebServerRequest *request){
-    nrf_info_struct nrf_ufcr;
-    get_new_main_info(&nrf_ufcr);
-    int download_len_word = nrf_ufcr.flash_size/4;
+              static uint32_t offset = 0;
 
-    static uint32_t offset = 0;
+              if (request->hasParam("len"))
+              {
+                int download_len_req = hstol(request->getParam("len")->value());
+                if (download_len_req > download_len_word * 4)
+                {
+                  //keep default
+                }
+                else if (download_len_req % 4)
+                {
+                  download_len_word = download_len_req / 4 + 1;
+                }
+                else
+                {
+                  download_len_word = download_len_req / 4;
+                }
+              }
 
-    if (request->hasParam("len"))
-    {
-      int download_len_req = hstol(request->getParam("len")->value());
-      if (download_len_req > download_len_word*4) {
-        //keep default
-      } else if (download_len_req % 4){
-        download_len_word = download_len_req / 4 + 1;
-      } else {
-        download_len_word = download_len_req / 4;
-      }
-    }
+              if (request->hasParam("offset"))
+              {
+                offset = hstol(request->getParam("offset")->value());
+              }
 
-    if (request->hasParam("offset"))
-    {
-      offset = hstol(request->getParam("offset")->value());
-    }
-  
-    Serial.printf("reading flash: offset:0x%X download_len_word:%d\n", offset, download_len_word);
+              Serial.printf("reading flash: offset:0x%X download_len_word:%d\n", offset, download_len_word);
 
-    AsyncWebServerResponse *response = request->beginResponse("application/octet-stream", download_len_word * 4, [](uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
-      int read_len_word = maxLen / 4; //if we always send multiples of 4, index can only be multiple of 4
-      
-      Serial.printf("reading flash: start:0x%X offset:0x%X maxLen:%d read_len_word:%d\n", offset, index, maxLen, read_len_word);
+              AsyncWebServerResponse *response = request->beginResponse("application/octet-stream", download_len_word * 4, [](uint8_t *buffer, size_t maxLen, size_t index) -> size_t
+                                                                        {
+                                                                          int read_len_word = maxLen / 4; //if we always send multiples of 4, index can only be multiple of 4
 
-      uint32_t *word_buffer = (uint32_t *)buffer;
+                                                                          Serial.printf("reading flash: start:0x%X offset:0x%X maxLen:%d read_len_word:%d\n", offset, index, maxLen, read_len_word);
 
-      if (read_len_word > 0){
-        nrf_read_bank(offset + index, word_buffer, read_len_word*4);
-      }
+                                                                          uint32_t *word_buffer = (uint32_t *)buffer;
 
-      return read_len_word * 4;
-    });
+                                                                          if (read_len_word > 0)
+                                                                          {
+                                                                            nrf_read_bank(offset + index, word_buffer, read_len_word * 4);
+                                                                          }
 
-    response->addHeader("Content-Disposition", "attachment; filename=\"flash.bin\"");
-    request->send(response);
-  });
+                                                                          return read_len_word * 4;
+                                                                        });
+
+              response->addHeader("Content-Disposition", "attachment; filename=\"flash.bin\"");
+              request->send(response);
+            });
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
 
