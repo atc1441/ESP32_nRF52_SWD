@@ -21,6 +21,7 @@
 uint8_t _direct_buffer[4096] = {0};
 uint32_t _direct_position = 0;
 uint32_t _direct_offset = 0;
+long millis_start = 0;
 
 const char *http_username = "admin";
 const char *http_password = "admin";
@@ -448,15 +449,21 @@ void init_web()
         Serial.println(final);
 
         uint32_t offset = 0;
+        uint32_t copy_len = 0;
         if (request->hasParam("flash_up_file_offset"), true)
         {
           offset = hstol(request->getParam("flash_up_file_offset", true)->value());
         }
 
+        if (!index)
+        {
+          millis_start = millis();
+        }
+
         while (len)
         {
           bool size_flag = (_direct_position + len) > 4096;
-          uint32_t copy_len = size_flag ? (4096 - _direct_position) : len;
+          copy_len = size_flag ? (4096 - _direct_position) : len;
           memcpy(&_direct_buffer[_direct_position], data, copy_len);
           len -= copy_len;
           _direct_position += copy_len;
@@ -468,8 +475,9 @@ void init_web()
             _direct_position = 0;
           }
         }
-          if (final)
-            _direct_offset = 0;
+        if (final)
+          set_last_speed((float)((float)(_direct_offset + copy_len) / (float)(millis() - millis_start)));
+        _direct_offset = 0;
       });
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");

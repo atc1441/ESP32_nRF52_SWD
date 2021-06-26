@@ -153,52 +153,71 @@ void write_register(uint32_t address, uint32_t value, bool muted)
     Serial.printf("%i%i%i Write Register: 0x%08x : 0x%08x\r\n", state1, state2, state3, address, value);
 }
 
-void write_flash(uint32_t address, uint32_t value)
+uint8_t write_flash(uint32_t address, uint32_t value)
 {
   write_register(0x4001e504, 1);
+  long timeout = millis();
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>100)return 1;
   }
   write_register(address, value);
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>100)return 1;
   }
   write_register(0x4001e504, 0);
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>100)return 1;
   }
+  return 0;
 }
 
-void erase_flash()
+uint8_t erase_flash()
 {
   write_register(0x4001e504, 2);
+  long timeout = millis();
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>100)return 1;
   }
   write_register(0x4001e50c, 1);
+  timeout = millis();
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>1000)return 1;
   }
   write_register(0x4001e504, 0);
+  timeout = millis();
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>100)return 1;
   }
+  return 0;
 }
 
-void erase_page(uint32_t page)
+uint8_t erase_page(uint32_t page)
 {
   write_register(0x4001e504, 2);
+  long timeout = millis();
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>100)return 1;
   }
   write_register(0x4001e508, page);
+  timeout = millis();
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>500)return 1;
   }
   write_register(0x4001e504, 0);
+  timeout = millis();
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>100)return 1;
   }
+  return 0;
 }
 
 uint8_t flash_file(uint32_t offset, String &path)
@@ -272,8 +291,10 @@ uint8_t nrf_write_bank(uint32_t address, uint32_t buffer[], int size)
   uint32_t temp;
 
   write_register(0x4001e504, 1); // NVIC Enable writing
+  long timeout = millis();
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>100)return 3;
   }
 
   AP_Write(AP_CSW, 0xa2000012);
@@ -293,8 +314,10 @@ uint8_t nrf_write_bank(uint32_t address, uint32_t buffer[], int size)
   DP_Read(DP_RDBUFF, temp);
 
   write_register(0x4001e504, 0); // NVIC Diasble writing
+  timeout = millis();
   while (read_register(0x4001e400) != 1)
   {
+    if(millis()-timeout>100)return 3;
   }
 
   return 0;
@@ -374,6 +397,10 @@ bool get_new_main_info()
 void get_new_main_info(nrf_info_struct *_nrf_ufcr)
 {
   *_nrf_ufcr = nrf_ufcr;
+}
+
+void set_last_speed(float speed){
+  _speed=speed;
 }
 
 /*

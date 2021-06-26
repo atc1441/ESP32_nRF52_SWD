@@ -16,9 +16,9 @@ void nrf_halt();
 void nrf_read_ufcr();
 uint32_t read_register(uint32_t address, bool muted = 0);
 void write_register(uint32_t address, uint32_t value, bool muted = 0);
-void write_flash(uint32_t address, uint32_t value);
-void erase_flash();
-void erase_page(uint32_t page);
+uint8_t write_flash(uint32_t address, uint32_t value);
+uint8_t erase_flash();
+uint8_t erase_page(uint32_t page);
 uint8_t flash_file(uint32_t offset, String &path);
 uint8_t dump_flash_to_file(uint32_t offset, uint32_t read_size, String &path);
 
@@ -33,6 +33,7 @@ float get_last_speed();
 void set_new_main_info(bool state);
 bool get_new_main_info();
 void get_new_main_info(nrf_info_struct *_nrf_ufcr);
+void set_last_speed(float speed);
 /*
    NRF custom control port
    For handling low level reset or Protection Bits
