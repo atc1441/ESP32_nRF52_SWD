@@ -348,6 +348,25 @@ uint8_t nrf_read_bank(uint32_t address, uint32_t buffer[], int size)
   return 0;
 }
 
+#define PAGE_LEN 1024
+
+uint32_t nrf_read_bank_bytes(uint32_t address, uint8_t buffer[], int size){
+  uint32_t page = address / PAGE_LEN;
+  int offset = address - (page * PAGE_LEN);
+  int al_size = (offset + size > PAGE_LEN) ? PAGE_LEN - offset : size;
+
+  Serial.printf("bank bytes: page:%d, offset:%d size:%d al_size:%d\n", page, offset, size, al_size);
+
+  uint32_t al_buf[PAGE_LEN/4];
+  nrf_read_bank(page * PAGE_LEN, al_buf, PAGE_LEN);
+  
+  for (int i=offset; i<offset+al_size; i++){
+    buffer[i-offset] = ((uint8_t *)al_buf)[i];
+  }
+
+  return al_size;
+}
+
 void set_write_flash(uint32_t offset, String &path)
 {
   _offset = offset;
