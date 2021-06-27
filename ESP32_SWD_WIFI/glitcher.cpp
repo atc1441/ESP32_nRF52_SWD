@@ -11,13 +11,14 @@
 #define delay_inc_step 1
 #define width_inc_step 1
 
-#define delay_max 30000
-#define width_max 30
+uint32_t delay_max = 30000;
+uint32_t width_max = 30;
 
-#define delay_start 2000
-#define width_start 0
+uint32_t delay_start = 2000;
+uint32_t width_start = 0;
 
 uint32_t _delay_us = 0;
+uint32_t _delay_us_end = 0;
 uint32_t _width = 0;
 
 bool glitcher_enabled = false;
@@ -25,6 +26,7 @@ bool glitcher_enabled = false;
 void glitcher_begin()
 {
   _delay_us = delay_start;
+  _delay_us_end = delay_max;
   _width = width_start;
   pinMode(LED, OUTPUT);
   pinMode(GLITCHER, OUTPUT);
@@ -69,7 +71,8 @@ void do_glitcher()
 
   delay(100);
   Serial.printf("SWD Id: 0x%08x\r\n", nrf_begin(true));
-  if (nrf_read_lock_state() == 1)
+  uint32_t variant_read = read_register(0x10000100);
+  if (variant_read == 0x00052832 || variant_read == 0x00052840 || nrf_read_lock_state() == 1)
   {
     Serial.println("We Have a good glitch");
     glitcher_enabled = false;
@@ -77,9 +80,13 @@ void do_glitcher()
   }
 }
 
-void set_delay(uint32_t delay_us)
+void set_delay(uint32_t delay_us,uint32_t delay_us_end)
 {
   _delay_us = delay_us;
+ delay_start = _delay_us;
+ 
+  _delay_us_end = delay_us_end;
+ delay_max = _delay_us_end;
 }
 
 uint32_t get_delay()
@@ -90,7 +97,7 @@ uint32_t get_delay()
 bool inc_delay()
 {
   _delay_us += delay_inc_step;
-  if (_delay_us > delay_max)
+  if (_delay_us > _delay_us_end)
   {
     _delay_us = delay_start;
     return true;

@@ -119,11 +119,12 @@ void init_web()
 
   server.on("/set_delay", HTTP_POST, [](AsyncWebServerRequest *request)
             {
-              if (request->hasParam("delay"))
+              if (request->hasParam("delay") && request->hasParam("delay_end"))
               {
                 int new_delay = request->getParam("delay")->value().toInt();
-                request->send(200, "text/plain", "Ok set delay: " + String(new_delay));
-                set_delay(new_delay);
+                int new_delay_end = request->getParam("delay_end")->value().toInt();
+                request->send(200, "text/plain", "Ok set delay: " + String(new_delay) + " delay_end: "+ String(new_delay_end));
+                set_delay(new_delay,new_delay_end);
                 return;
               }
               request->send(200, "text/plain", "Wrong parameter");
