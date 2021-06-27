@@ -119,10 +119,10 @@
         <br><br>
 
         <label for="flash_uploaded_file">Flash uploaded file</label>
-        <form action="flash_file" method="post" enctype="multipart/form-data" target="flash_uploaded_file">
+        <form action="flash_file_direct" method="post" enctype="multipart/form-data" target="flash_uploaded_file">
             <label for="flash_up_file_offset">Offset 0x</label>
             <input type="text" id="flash_up_file_offset" name="flash_up_file_offset" value="0">
-            <input type="file" id="flash_file" name="flash_file">
+            <input type="file" id="flash_file_direct" name="flash_file_direct">
             <input type="submit" value="Flash uploaded file" name="submit">
         </form>
         <br><br>
@@ -162,6 +162,20 @@
     </section>
 
     <section>
+        <h2>Glitch osci</h2>
+        <label for="graph_time">Time</label>
+        <input type="text" id="graph_time" name="graph_time" value="300">
+        <label for="graph_delay">Delay</label>
+        <input type="text" id="graph_delay" name="graph_delay" value="2000">
+        <button onclick='sendGraph("get_graph?size="+document.getElementById("graph_time").value+"&delay="+document.getElementById("graph_delay").value)'>Get graph</button>
+        <div id="graph">
+          
+           <canvas id="graph_canvas" width="5" height="5" style="border:1px solid #c3c3c3;"></canvas><br>
+          
+        </div>
+    </section>
+
+    <section>
         <h2>Infos</h2>
         This software brings you the possibility to Read and Write the internal Flash of the Nordic nRF52 series with an
         ESP32.<br>
@@ -176,6 +190,39 @@
         const answerDiv = document.getElementById('answer');
         const contentDiv = document.getElementById("content");
         const progressMarker = document.getElementById("dot");
+        
+        
+        //Graph feature
+        const canvas = document.getElementById("graph_canvas");
+        const ctx = canvas.getContext("2d");
+
+        async function sendGraph(url) {
+            try {
+                const resp = await fetch(url, { method: "GET" })
+                let graph_data = await resp.text()
+                    let graph_parts = graph_data.split(',');
+                    graph_parts.pop();
+                    let max_val = Math.max(...graph_parts);
+                    let min_val = Math.min(...graph_parts);
+                    console.log("Max: "+ max_val);
+                    console.log("Min: "+ min_val);
+                    canvas.width = document.getElementById("graph_time").value;
+                    canvas.height = max_val-min_val;
+                    ctx.clearRect(0,0,canvas.width, canvas.height);
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'blue';
+                    ctx.moveTo(0, 0);
+                    for (let i = 1; i < document.getElementById("graph_time").value; i++)
+                    {
+                      ctx.lineTo(i, max_val-graph_parts[i]);
+                      ctx.stroke();
+                    }
+            } catch (err) {
+                console.log("ERROR: " + err)
+            }
+        }
+        //Graph feature end
+
 
         async function send(url) {
             try {
@@ -185,6 +232,7 @@
                 answerDiv.innerHTML = "ERROR: " + err
             }
         }
+
 
         async function send_post(url, data_text) {
             try {

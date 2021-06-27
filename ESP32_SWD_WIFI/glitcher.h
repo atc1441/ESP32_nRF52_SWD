@@ -15,3 +15,5 @@ bool inc_delay();
 void set_width(uint32_t width);
 uint32_t get_width();
 bool inc_width();
+
+void get_osci_graph(uint16_t graph_buff[],uint32_t size,uint32_t delay_time);

@@ -11,7 +11,7 @@
 #define delay_inc_step 1
 #define width_inc_step 1
 
-#define delay_max 3000
+#define delay_max 30000
 #define width_max 30
 
 #define delay_start 2000
@@ -117,4 +117,23 @@ bool inc_width()
     return true;
   }
   return false;
+}
+
+void get_osci_graph(uint16_t graph_buff[], uint32_t size, uint32_t delay_time)
+{
+  set_power(LOW);
+  delay(50);
+  set_power(HIGH);
+  long start_micro = micros();
+  bool has_fired = 0;
+  for (int i = 0; i < size; i++)
+  {
+    if (!has_fired && micros() - start_micro > delay_time){
+      has_fired = 1;
+      digitalWrite(GLITCHER, HIGH);
+    graph_buff[i++] = analogRead(OSCI_PIN);
+      digitalWrite(GLITCHER, LOW);
+    }
+    graph_buff[i] = analogRead(OSCI_PIN);
+  }
 }

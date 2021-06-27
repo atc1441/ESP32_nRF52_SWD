@@ -524,6 +524,22 @@ void init_web()
               response->addHeader("Content-Disposition", "attachment; filename=\"flash.bin\"");
               request->send(response);
             });
+            
+  server.on("/get_graph", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
+              if (request->hasParam("size")&&request->hasParam("delay"))
+              {
+              uint32_t size = request->getParam("size")->value().toInt();
+              uint32_t delay_time = request->getParam("delay")->value().toInt();
+              uint16_t graph_buff[size] = {0};
+              get_osci_graph(graph_buff, size,delay_time);
+              String answer_state = "";
+              for(int i =0;i<size;i++){
+                answer_state += String(graph_buff[i]) + ",";
+              }                
+              answer_state += "0";
+              request->send(200, "text/plain", answer_state);
+            }});
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
 

@@ -8,6 +8,8 @@
 #define GLITCHER 5
 #define NRF_POWER 22
 
+#define OSCI_PIN 34
+
 #define swd_clock_pin 21
 #define swd_data_pin 19
 
