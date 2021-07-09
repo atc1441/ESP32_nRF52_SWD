@@ -55,7 +55,8 @@ void do_glitcher()
 {
   Serial.println("Next glitch");
   Serial.println("Delay: " + String(get_delay()) + " Width: " + String(get_width()));
-
+   
+  digitalWrite(swd_clock_pin, LOW);
   set_power(LOW);
   delay(50);
   set_power(HIGH);
@@ -128,6 +129,7 @@ bool inc_width()
 
 void get_osci_graph(uint16_t graph_buff[], uint32_t size, uint32_t delay_time)
 {
+  digitalWrite(swd_clock_pin, LOW);
   set_power(LOW);
   delay(50);
   set_power(HIGH);
