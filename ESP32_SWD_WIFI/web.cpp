@@ -119,12 +119,14 @@ void init_web()
 
   server.on("/set_delay", HTTP_POST, [](AsyncWebServerRequest *request)
             {
-              if (request->hasParam("delay") && request->hasParam("delay_end"))
+              if (request->hasParam("delay") && request->hasParam("delay_end") && request->hasParam("power_off") && request->hasParam("swd_wait"))
               {
                 int new_delay = request->getParam("delay")->value().toInt();
                 int new_delay_end = request->getParam("delay_end")->value().toInt();
-                request->send(200, "text/plain", "Ok set delay: " + String(new_delay) + " delay_end: "+ String(new_delay_end));
-                set_delay(new_delay,new_delay_end);
+                int new_power_off = request->getParam("power_off")->value().toInt();
+                int new_swd_wait = request->getParam("swd_wait")->value().toInt();
+                request->send(200, "text/plain", "Ok set delay: " + String(new_delay) + " delay_end: " + String(new_delay_end));
+                set_delay(new_delay, new_delay_end, new_power_off, new_swd_wait);
                 return;
               }
               request->send(200, "text/plain", "Wrong parameter");
@@ -489,8 +491,9 @@ void init_web()
               {
                 offset = hstol(request->getParam("offset")->value());
 
-                if (offset > nrf_ufcr.flash_size) {
-                  request->send(400, "text/html", "ERROR: Invalid offset!"); 
+                if (offset > nrf_ufcr.flash_size)
+                {
+                  request->send(400, "text/html", "ERROR: Invalid offset!");
                   return;
                 }
               }
@@ -498,49 +501,53 @@ void init_web()
               if (request->hasParam("len"))
               {
                 download_len = hstol(request->getParam("len")->value());
-                if (offset + download_len > nrf_ufcr.flash_size) {
-                  request->send(400, "text/html", "ERROR: Too big download length!"); 
+                if (offset + download_len > nrf_ufcr.flash_size)
+                {
+                  request->send(400, "text/html", "ERROR: Too big download length!");
                   return;
                 }
               }
 
-              if (offset + download_len > nrf_ufcr.flash_size) {
+              if (offset + download_len > nrf_ufcr.flash_size)
+              {
                 download_len = nrf_ufcr.flash_size - offset;
               }
 
               Serial.printf("reading flash: offset:0x%X download_len:%d\n", offset, download_len);
 
               AsyncWebServerResponse *response = request->beginResponse("application/octet-stream", download_len, [](uint8_t *buffer, size_t maxLen, size_t index) -> size_t
-                {
-                  Serial.printf("handle download: index:0x%X maxLen:%d offset:0x%X\n", index, maxLen, offset);
+                                                                        {
+                                                                          Serial.printf("handle download: index:0x%X maxLen:%d offset:0x%X\n", index, maxLen, offset);
 
-                  if (maxLen > 0)
-                  {
-                    return nrf_read_bank_bytes(offset + index, buffer, maxLen);
-                  }
+                                                                          if (maxLen > 0)
+                                                                          {
+                                                                            return nrf_read_bank_bytes(offset + index, buffer, maxLen);
+                                                                          }
 
-                  return 0;
-                });
+                                                                          return 0;
+                                                                        });
 
               response->addHeader("Content-Disposition", "attachment; filename=\"flash.bin\"");
               request->send(response);
             });
-            
+
   server.on("/get_graph", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-              if (request->hasParam("size")&&request->hasParam("delay"))
+              if (request->hasParam("size") && request->hasParam("delay"))
               {
-              uint32_t size = request->getParam("size")->value().toInt();
-              uint32_t delay_time = request->getParam("delay")->value().toInt();
-              uint16_t graph_buff[size] = {0};
-              get_osci_graph(graph_buff, size,delay_time);
-              String answer_state = "";
-              for(int i =0;i<size;i++){
-                answer_state += String(graph_buff[i]) + ",";
-              }                
-              answer_state += "0";
-              request->send(200, "text/plain", answer_state);
-            }});
+                uint32_t size = request->getParam("size")->value().toInt();
+                uint32_t delay_time = request->getParam("delay")->value().toInt();
+                uint16_t graph_buff[size] = {0};
+                get_osci_graph(graph_buff, size, delay_time);
+                String answer_state = "";
+                for (int i = 0; i < size; i++)
+                {
+                  answer_state += String(graph_buff[i]) + ",";
+                }
+                answer_state += "0";
+                request->send(200, "text/plain", answer_state);
+              }
+            });
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
 

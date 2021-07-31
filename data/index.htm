@@ -62,7 +62,12 @@
         <input type="text" id="delay" name="delay" value="2000">
         <label for="delay_end">Delay end:</label>
         <input type="text" id="delay_end" name="delay_end" value="3000">
-        <button onclick='send("set_delay?delay="+document.getElementById("delay").value+"&delay_end="+document.getElementById("delay_end").value)'>Set glitch
+        <br>
+        <label for="power_off_delay">Power off delay:</label>
+        <input type="text" id="power_off_delay" name="power_off_delay" value="50">
+        <label for="swd_wait">SWD Wait:</label>
+        <input type="text" id="swd_wait" name="swd_wait" value="100">
+        <button onclick='send("set_delay?delay="+document.getElementById("delay").value+"&delay_end="+document.getElementById("delay_end").value+"&power_off="+document.getElementById("power_off_delay").value+"&swd_wait="+document.getElementById("swd_wait").value)'>Set glitch
             delay</button><br>
             Set glitcher will run between these two delay times.
             <br><br>

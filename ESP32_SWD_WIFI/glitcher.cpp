@@ -21,6 +21,9 @@ uint32_t _delay_us = 0;
 uint32_t _delay_us_end = 0;
 uint32_t _width = 0;
 
+uint32_t _power_off_delay = 50;
+uint32_t _swd_wait_delay = 100;
+
 bool glitcher_enabled = false;
 
 void glitcher_begin()
@@ -55,10 +58,10 @@ void do_glitcher()
 {
   Serial.println("Next glitch");
   Serial.println("Delay: " + String(get_delay()) + " Width: " + String(get_width()));
-   
+
   digitalWrite(swd_clock_pin, LOW);
   set_power(LOW);
-  delay(50);
+  delay(_power_off_delay);
   set_power(HIGH);
   delayMicroseconds(get_delay());
   digitalWrite(GLITCHER, HIGH);
@@ -70,7 +73,7 @@ void do_glitcher()
     inc_delay();
   }
 
-  delay(100);
+  delay(_swd_wait_delay);
   Serial.printf("SWD Id: 0x%08x\r\n", nrf_begin(true));
   uint32_t variant_read = read_register(0x10000100);
   if (variant_read == 0x00052832 || variant_read == 0x00052840 || nrf_read_lock_state() == 1)
@@ -81,13 +84,16 @@ void do_glitcher()
   }
 }
 
-void set_delay(uint32_t delay_us,uint32_t delay_us_end)
+void set_delay(uint32_t delay_us, uint32_t delay_us_end, uint32_t power_off_delay, uint32_t swd_wait_delay)
 {
   _delay_us = delay_us;
- delay_start = _delay_us;
- 
+  delay_start = _delay_us;
+
   _delay_us_end = delay_us_end;
- delay_max = _delay_us_end;
+  delay_max = _delay_us_end;
+
+  _power_off_delay = power_off_delay;
+  _swd_wait_delay = swd_wait_delay;
 }
 
 uint32_t get_delay()
@@ -131,16 +137,17 @@ void get_osci_graph(uint16_t graph_buff[], uint32_t size, uint32_t delay_time)
 {
   digitalWrite(swd_clock_pin, LOW);
   set_power(LOW);
-  delay(50);
+  delay(_power_off_delay);
   set_power(HIGH);
   long start_micro = micros();
   bool has_fired = 0;
   for (int i = 0; i < size; i++)
   {
-    if (!has_fired && micros() - start_micro > delay_time){
+    if (!has_fired && micros() - start_micro > delay_time)
+    {
       has_fired = 1;
       digitalWrite(GLITCHER, HIGH);
-    graph_buff[i++] = analogRead(OSCI_PIN);
+      graph_buff[i++] = analogRead(OSCI_PIN);
       digitalWrite(GLITCHER, LOW);
     }
     graph_buff[i] = analogRead(OSCI_PIN);
