@@ -4,14 +4,17 @@
 */
 #pragma once
 
-#define LED 2
-#define GLITCHER 5
-#define NRF_POWER 22
+#define LED_R 16
+#define LED_G 5
+#define LED_B 26
+#define GLITCHER 23
+#define NRF_POWER 19
+#define NRF_POWER_5V 18
 
-#define OSCI_PIN 34
+#define OSCI_PIN 36
 
 #define swd_clock_pin 21
-#define swd_data_pin 19
+#define swd_data_pin 22
 
 #define AP_NRF_RESET 0x00
 #define AP_NRF_ERASEALL 0x04

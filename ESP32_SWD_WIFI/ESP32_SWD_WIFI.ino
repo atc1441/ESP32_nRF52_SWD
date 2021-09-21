@@ -27,6 +27,7 @@ void setup()
 #endif
 }
 
+long last_blink = 0;
 void loop()
 {
 #ifdef ENABLE_OTA
@@ -39,5 +40,10 @@ void loop()
   else
   {
     do_nrf_swd();
+  }
+  if (millis() - last_blink > 100)
+  {
+    last_blink = millis();
+    digitalWrite(LED_B, !digitalRead(LED_B));
   }
 }

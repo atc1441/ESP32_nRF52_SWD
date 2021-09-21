@@ -31,9 +31,14 @@ void glitcher_begin()
   _delay_us = delay_start;
   _delay_us_end = delay_max;
   _width = width_start;
-  pinMode(LED, OUTPUT);
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
+  digitalWrite(LED_G, HIGH);
+  digitalWrite(LED_B, LOW);
   pinMode(GLITCHER, OUTPUT);
   pinMode(NRF_POWER, OUTPUT);
+  pinMode(NRF_POWER_5V, OUTPUT);
   digitalWrite(GLITCHER, LOW);
   set_power(HIGH);
 }
@@ -51,7 +56,8 @@ bool get_glitcher()
 void set_power(bool state)
 {
   digitalWrite(NRF_POWER, state);
-  digitalWrite(LED, state);
+  digitalWrite(NRF_POWER_5V, state);
+  digitalWrite(LED_R, state);
 }
 
 void do_glitcher()
