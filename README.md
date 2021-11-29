@@ -33,6 +33,8 @@ This repo is made together with these explanation videos:(click on it)
 
 ### HowTo:
 
+If there are errors while compiling try to use version 1.0.6 of the ESP32 core.
+
 #### Arduino:
 (It is also possible to use PlatformIO)
 
