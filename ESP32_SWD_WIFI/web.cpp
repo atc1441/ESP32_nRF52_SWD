@@ -550,6 +550,9 @@ void init_web()
                 if (buf[3] == 0x02){
                   flash_offset = buf[4]*0x1000 + buf[5]*0x10;
                   Serial.printf("Setting flash_offset to %d\r\n", flash_offset);
+                } else if (buf[3] == 0x04){
+                  flash_offset = (flash_offset & 0xFFFF) + (buf[4] << 24) + (buf[5] << 16);
+                  Serial.printf("Setting flash_offset to %d\r\n", flash_offset);
                 } else if (buf[3] == 0x00){
                   int off = buf[1]*0x100 + buf[2];
                   Serial.printf("Writing flash_offset: 0x%x off 0x%x\r\n", flash_offset, off);
