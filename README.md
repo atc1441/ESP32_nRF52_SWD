@@ -56,6 +56,9 @@ This repo is made together with these explanation videos:(click on it)
 
 <img width="800" alt="" src="https://github.com/atc1441/ESP32_nRF52_SWD/blob/main/ESP32_nRF_glitcher_schematic.jpg">
 
+#### nRF52832 Glitch Tipp, way better results with these 2 caps removed
+<img width="800" alt="" src="https://github.com/atc1441/ESP32_nRF52_SWD/blob/main/nRF52832_glitchtipp.jpg">
+
 
 
 Credits go to LimitedResults for finding the Power glitching Exploit: https://limitedresults.com/2020/06/nrf52-debug-resurrection-approtect-bypass-part-2/
