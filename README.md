@@ -1,5 +1,5 @@
 # ESP32 SWD Flasher for nRF52
-This software makes it possibile to Read and Write the internal Flash of the Nordic nRF52 series with an ESP32 using the SWD interface.
+This software makes it possible to Read and Write the internal Flash of the Nordic nRF52 series with an ESP32 using the SWD interface.
 A tool to exploit the APPROTECT vulnerability is included as well.
 
 ### You can support my work via PayPal: https://paypal.me/hoverboard1 this keeps projects like this coming.
@@ -7,12 +7,12 @@ A tool to exploit the APPROTECT vulnerability is included as well.
 To flash an nRF52 connect the following:
 - nRF **SWDCLK** to ESP32 **GPIO D21**
 - nRF **SWDIO** to ESP32 **GPIO D19**
-- nRF **GND** to ESP32 **GND** to **NFet Mosfet GND**
+- nRF **GND** to ESP32 **GND** to **NFet Mosfet GND** (Optional: Oscilloscope **GND**)
 
  Then power the nRF52 as needed
 
 To bypass the Readout protection (APPROTECT) of an nRF52 connect all of the above and the following:
-- nRF 3.3V Power **VDD** to ESP32 **GPIO D22**
+- nRF 3.3V Power **VDD** to ESP32 **GPIO D22** (Optional: Oscilloscope **Trigger Channel**)
 - **NFet Mosfet** to ESP32 **GPIO D5** (as shown)
 - **NFet Mosfet Gate** to nRF **DEC1** (as shown)
 
@@ -49,7 +49,7 @@ Note: Use version 1.0.6 of the ESP32 core. Also use the source files vs the rele
 #### Arduino:
 (It is also possible to use PlatformIO)
 
-- Copy or install the three downloaded libraries (AsyncTCP, ESPAsyncWebServer, WifiManager) into the Arduino > libraries directoy
+- Copy or install the three downloaded libraries (AsyncTCP, ESPAsyncWebServer, WifiManager) into the Arduino > libraries directory
 - Arduino > libraries: Rename:
  - AsyncTCP-master to AsyncTCP
  - ESPAsyncWebServer-master to ESPAsyncWebServer
@@ -62,17 +62,17 @@ Note: Use version 1.0.6 of the ESP32 core. Also use the source files vs the rele
 - Click Verify
 - Click Upload
 - Long-press the BOOT button on ESP32 after clicking Upload, until it is showing "Uploading"
-- Once it displays "Leaving... Hard resetting..." its done flashing and ready to setup
+- Once it displays "Leaving... Hard resetting..." it’s done flashing and ready to setup
 - The ESP32 will now create a Wifi Network with the WifiManager called: "AutoConnectAP" after connecting to the Wifi go to the ip: 192.168.4.1 in your Browser
 - Configure the Wifi for your home network
 - Once fully connected enter: "http://swd.local" in your internet browser and it should show a first page from the ESP32
 - Go to: "http://swd.local/edit" login with admin:admin
 - Click Choose File and browse for the "data/index.htm" file and click Upload
 - Go to: "http://swd.local" again, the ESP32 SWD Flasher page should now be displayed
-- If not already done, connect the nRF via SWD. Click the button "Init SWD" and wait for the response in the info page or look in the Arduino UART terminal if something doesn't work. The nRF chip should be detectedand it will display a notification about whether or not the nRF is locked
+- If not already done, connect the nRF via SWD. Click the button "Init SWD" and wait for the response in the info page or look in the Arduino UART terminal if something doesn't work. The nRF chip should be detected and it will display a notification about whether or not the nRF is locked
 - To flash new firmware to an nRF you can erase the whole chip and then flash an uploaded file via the "Flash File" button, you need to enter the correct filename
 - To dump the flash content of an nRF enter a filename, an offset if wanted, and a size of bytes in decimal then click the "Dump to File" button and wait for it to finish
-- To Glitch the nRF use the Delay Input to find the right spot to glitch, it should be near the small voltage drop of the DEC1 line, best is to have an Oscilliscope connected to see what is happening, but you can also just blindly find the delay as the delay will automatically increase and the ESP32 will notify when it achieves a successfull glitch after clicking "Enable Glitcher" you can change the delay time on the fly
+- To Glitch the nRF use the Delay Input to find the right spot to glitch, it should be near the small voltage drop of the DEC1 line, best is to have an Oscilloscope connected to see what is happening, but you can also just blindly find the delay as the delay will automatically increase and the ESP32 will notify when it achieves a successful glitch after clicking "Enable Glitcher" you can change the delay time on the fly
 
 
 
