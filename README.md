@@ -1,19 +1,22 @@
 # ESP32 nRF52 SWD flasher
-This software brings you the possibility to Read and Write the internal Flash of the Nordic nRF52 series with an ESP32 using the SWD interface.
+This software makes it possibile to Read and Write the internal Flash of the Nordic nRF52 series with an ESP32 using the SWD interface.
 A tool to exploit the APPROTECT vulnerability is included as well.
 
 ### You can support my work via PayPal: https://paypal.me/hoverboard1 this keeps projects like this coming.
 
-To flash an nRF52 connect the SWD pins: CLK to GPIO 21 and DIO to GPIO 19 of the ESP32. Also connect the nRF52 GND to the ESP32 and power the nRF52 as needed.
+To flash an nRF52 connect the following:
+- nRF **SWDCLK** to ESP32 **GPIO D21**
+- nRF **SWDIO** to ESP32 **GPIO D19**
+- nRF **GND** to ESP32 **GND** to **NFet Mosfet GND**
+Then power the nRF52 as needed
 
-To bypass the Readout protection of an nRF52 connect the following:
+To bypass the Readout protection (APPROTECT) of an nRF52 connect all of the above and the following:
+- nRF 3.3V Power **VDD** to ESP32 **GPIO D22**
+- **NFet Mosfet** to ESP32 **GPIO D5** (as shown)
+- **NFet Mosfet Gate** to nRF **DEC1** (as shown)
 
-3.3V Power of the nRF to GPIO 22 of the ESP32
-NFet Mosfet like shown to GPIO 5 of the ESP32 - the Gate from the Mosfet to the DEC1 pin of the nRF
-SWD pins as mentioned above
 
-
-This repo is made together with these explanation videos:(click on it)
+This repo is explained and demonstrated in these videos (click to watch):
 
 
 [![YoutubeVideo](https://img.youtube.com/vi/tMPD0kBG_So/0.jpg)](https://www.youtube.com/watch?v=tMPD0kBG_So)
@@ -21,8 +24,14 @@ This repo is made together with these explanation videos:(click on it)
 
 [![YoutubeVideo](https://img.youtube.com/vi/Iu6RoXRZxOk/0.jpg)](https://www.youtube.com/watch?v=Iu6RoXRZxOk)
 
+### Required Hardware
 
-### Needed Software
+- ESP32 Development Board
+- NFet Mosfet
+- nRF52 Series Board
+- Optional: Oscilloscope
+
+### Required Software
 
 - Arduino IDE https://www.arduino.cc/
 - ESP32 core Library https://github.com/espressif/arduino-esp32
@@ -30,27 +39,37 @@ This repo is made together with these explanation videos:(click on it)
 - AsyncTCP https://github.com/me-no-dev/AsyncTCP
 - ESPAsyncWebServer https://github.com/me-no-dev/ESPAsyncWebServer
 
-
 ### HowTo:
 
-If there are errors while compiling try to use version 1.0.6 of the ESP32 core.
+Note: Use version 1.0.6 of the ESP32 core. Also use the source files vs the release packages.
 
 #### Arduino:
 (It is also possible to use PlatformIO)
 
-- Open the "ESP32_SWD_WIFI.ino" file with Arduino and select the "ESP32 Dev Module", Make sure to select "No OTA (1MB App / 3MB SPIFFS)" as config for the ESP32 to have more space available.
-- Select the ESP32 COM port
-- Click on Upload and wait for a succesfull upload
-- The ESP32 will now create a Wifi Network with the WifiManager called "AutoConnectAP" with your Browser go to the ip 192.168.4.1 after connecting to the Wifi
-- Configure the Wifi to your Home network
-- If fully connected enter "http://swd.local" in your internet browser and it should show a first page from the ESP32
-- Go to "http://swd.local/edit" log in with admin:admin browse for the "data/index.htm" file and upload it via the supplied webpage
-- Got to "http://swd.local" again, the SWD Flasher paged should be shown now.
-- Connect the nRF via SWD if not already done. Click the button "Init SWD" and wait for the response in the info page or look in the Arduino UART terminal if something doesnt work, The nRF chip should be detected, if the nRF is locked it will notify about that.
-
-- To flash a new firmware to an nRF you can erase the whole chip to then flash an uploaded file via the "Flash file" button, you need to enter the correct filename.
-- To dump the flash content of an nRF enter a filename an offset if wanted and a size of bytes in dezimal then click the "Dump to file" button and wait for it.
-- To Glitch the nRF use the Delay input to find the right spot on where to glitch, it should be near the small voltage drop of the DEC1 line, best is to have an Osci connected to see what is happening but you can also just blindly find the Delay as the delay will increase and the ESP32 will notify about a suffesfull glitch after clicking "Enable Glitcher" you can change the delay time on the fly.
+- Copy or install the three downloaded libraries (AsyncTCP, ESPAsyncWebServer, WifiManager) into the Arduino > libraries directoy
+- Arduino > libraries: Rename:
+ - AsyncTCP-master to AsyncTCP
+ - ESPAsyncWebServer-master to ESPAsyncWebServer
+ - WiFiManager-master to WiFiManager
+- Add the ESP32 Core to Arduino (File > Additional Boards Manager URLS > https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json)
+- Install the ESP32 Core (Tools > Boards Manager > Search > esp32 > Select version > 1.0.6 > Install)
+- Open the "ESP32_SWD_WIFI.ino" file with Arduino and select the "ESP32 Dev Module" (Tools > Board: > ESP32 Arduino > ESP32 Dev Module)
+- Make sure to select "No OTA (1MB App / 3MB SPIFFS)" as the partition scheme for the ESP32 to have more space available. (Tools > Partition Scheme: > "No OTA (1MB App/3MB SPIFFS)")
+- Select the ESP32 COM port (Tools > Port: > COM#)
+- Click Verify
+- Click Upload
+- Long-press the BOOT button on ESP32 after clicking Upload, until it is showing "Uploading"
+- Once it displays "Leaving... Hard resetting..." its done flashing and ready to setup
+- The ESP32 will now create a Wifi Network with the WifiManager called: "AutoConnectAP" after connecting to the Wifi go to the ip: 192.168.4.1 in your Browser
+- Configure the Wifi for your home network
+- Once fully connected enter: "http://swd.local" in your internet browser and it should show a first page from the ESP32
+- Go to: "http://swd.local/edit" login with admin:admin
+- Click Choose File and browse for the "data/index.htm" file and click Upload
+- Go to: "http://swd.local" again, the ESP32 SWD Flasher page should now be displayed
+- If not already done, connect the nRF via SWD. Click the button "Init SWD" and wait for the response in the info page or look in the Arduino UART terminal if something doesn't work. The nRF chip should be detectedand it will display a notification about whether or not the nRF is locked
+- To flash new firmware to an nRF you can erase the whole chip and then flash an uploaded file via the "Flash File" button, you need to enter the correct filename
+- To dump the flash content of an nRF enter a filename, an offset if wanted, and a size of bytes in decimal then click the "Dump to File" button and wait for it to finish
+- To Glitch the nRF use the Delay Input to find the right spot to glitch, it should be near the small voltage drop of the DEC1 line, best is to have an Oscilliscope connected to see what is happening, but you can also just blindly find the delay as the delay will automatically increase and the ESP32 will notify when it achieves a successfull glitch after clicking "Enable Glitcher" you can change the delay time on the fly
 
 
 
