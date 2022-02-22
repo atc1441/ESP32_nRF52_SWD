@@ -5,16 +5,16 @@ A tool to exploit the APPROTECT vulnerability is included as well.
 ### You can support my work via PayPal: https://paypal.me/hoverboard1 this keeps projects like this coming.
 
 To flash an nRF52 connect the following:
-- nRF **SWDCLK** to ESP32 **GPIO D21**
-- nRF **SWDIO** to ESP32 **GPIO D19**
-- nRF **GND** to ESP32 **GND** to **NFet Mosfet GND** (Optional: O-scope **GND Clips**)
+- nRF52 **SWDCLK** to ESP32 **GPIO D21**
+- nRF52 **SWDIO** to ESP32 **GPIO D19**
+- nRF52 **GND** to ESP32 **GND** to **NFet Mosfet GND** (Optional: O-scope **GND Clips**)
 
  Then power the nRF52 as needed
 
 To bypass the Readout protection (APPROTECT) of an nRF52 connect all of the above and the following:
-- nRF 3.3V Power **VDD** to ESP32 **GPIO D22** (Optional: O-scope **Channel 2 Probe**)
+- nRF52 3.3V Power **VDD** to ESP32 **GPIO D22** (Optional: O-scope **Channel 2 Probe**)
 - **NFet Mosfet** to ESP32 **GPIO D5** (as shown)
-- **NFet Mosfet Gate** to nRF **DEC1** (as shown) (Optional: O-scope **Channel 1 Probe**)
+- **NFet Mosfet Gate** to nRF52 **DEC1** (as shown) (Optional: O-scope **Channel 1 Probe**)
 
  Then power the nRF52 as needed
 
@@ -69,10 +69,10 @@ Note: Use version 1.0.6 of the ESP32 core. Also use the source files vs the rele
 - Go to: "http://swd.local/edit" login with admin:admin
 - Click Choose File and browse for the "data/index.htm" file and click Upload
 - Go to: "http://swd.local" again, the ESP32 SWD Flasher page should now be displayed
-- If not already done, connect the nRF via SWD. Click the button "Init SWD" and wait for the response in the info page or look in the Arduino UART terminal if something doesn't work. The nRF chip should be detected and it will display a notification about whether or not the nRF is locked
-- To flash new firmware to an nRF you can erase the whole chip and then flash an uploaded file via the "Flash File" button, you need to enter the correct filename
-- To dump the flash content of an nRF enter a filename, an offset if wanted, and a size of bytes in decimal then click the "Dump to File" button and wait for it to finish
-- To Glitch the nRF use the Delay Input to find the right spot to glitch, it should be near the small voltage drop of the DEC1 line, best is to have an Oscilloscope connected to see what is happening, but you can also just blindly find the delay as the delay will automatically increase and the ESP32 will notify when it achieves a successful glitch after clicking "Enable Glitcher" you can change the delay time on the fly
+- If not already done, connect the nRF52 via SWD. Click the button "Init SWD" and wait for the response in the info page or look in the Arduino UART terminal if something doesn't work. The nRF chip should be detected and it will display a notification about whether or not the nRF52 is locked
+- To flash new firmware to an nRF52 you can erase the whole chip and then flash an uploaded file via the "Flash File" button, you need to enter the correct filename
+- To dump the flash content of an nRF52 enter a filename, an offset if wanted, and a size of bytes in decimal then click the "Dump to File" button and wait for it to finish
+- To Glitch the nRF52 use the Delay Input to find the right spot to glitch, it should be near the small voltage drop of the DEC1 line, best is to have an Oscilloscope connected to see what is happening, but you can also just blindly find the delay as the delay will automatically increase and the ESP32 will notify when it achieves a successful glitch after clicking "Enable Glitcher" you can change the delay time on the fly
 
 
 
