@@ -9,12 +9,14 @@ To flash an nRF52 connect the following:
 - nRF **SWDIO** to ESP32 **GPIO D19**
 - nRF **GND** to ESP32 **GND** to **NFet Mosfet GND**
 
-Then power the nRF52 as needed
+ Then power the nRF52 as needed
 
 To bypass the Readout protection (APPROTECT) of an nRF52 connect all of the above and the following:
 - nRF 3.3V Power **VDD** to ESP32 **GPIO D22**
 - **NFet Mosfet** to ESP32 **GPIO D5** (as shown)
 - **NFet Mosfet Gate** to nRF **DEC1** (as shown)
+
+ Then power the nRF52 as needed
 
 
 This repo is explained and demonstrated in these videos (click to watch):
