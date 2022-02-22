@@ -80,6 +80,7 @@ Note: Use version 1.0.6 of the ESP32 core. Also use the source files vs the rele
 
 <img width="800" alt="" src="https://github.com/atc1441/ESP32_nRF52_SWD/blob/main/ESP32_nRF_glitcher_schematic.jpg">
 
+![nRF52832_glitchtip](https://user-images.githubusercontent.com/78761379/155200118-03735502-d424-4bd6-8e28-ac4913bc21bb.jpg)
 
 
 Credits go to LimitedResults for finding the Power glitching Exploit: https://limitedresults.com/2020/06/nrf52-debug-resurrection-approtect-bypass-part-2/
