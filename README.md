@@ -7,7 +7,8 @@ A tool to exploit the APPROTECT vulnerability is included as well.
 To flash an nRF52 connect the following:
 - nRF **SWDCLK** to ESP32 **GPIO D21**
 - nRF **SWDIO** to ESP32 **GPIO D19**
-- nRF **GND** to ESP32 **GND** to **NFet Mosfet GND** 
+- nRF **GND** to ESP32 **GND** to **NFet Mosfet GND**
+
 Then power the nRF52 as needed
 
 To bypass the Readout protection (APPROTECT) of an nRF52 connect all of the above and the following:
