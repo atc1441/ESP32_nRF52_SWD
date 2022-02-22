@@ -1,4 +1,4 @@
-# ESP32 nRF52 SWD flasher
+# ESP32 SWD Flasher for nRF52
 This software makes it possibile to Read and Write the internal Flash of the Nordic nRF52 series with an ESP32 using the SWD interface.
 A tool to exploit the APPROTECT vulnerability is included as well.
 
