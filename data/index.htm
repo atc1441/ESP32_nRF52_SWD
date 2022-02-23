@@ -57,32 +57,32 @@
     </header>
     Copyright (c) 2021 Aaron Christophel ATCnetz.de
     <section>
-        <h2>Glitcher</h2>
-        <label for="delay">Delay:</label>
+        <h2>Glitcher Settings</h2>
+        <label for="delay">Delay Input (µs):</label>
         <input type="text" id="delay" name="delay" value="2000">
-        <label for="delay_end">Delay end:</label>
+        <label for="delay_end">Delay End (µs):</label>
         <input type="text" id="delay_end" name="delay_end" value="3000">
-        <br>
-        <label for="power_off_delay">Power off delay:</label>
+        <br>(Glitcher will run between the two delay times)
+		<br><br>
+        <label for="power_off_delay">Power Off Delay (µs):</label>
         <input type="text" id="power_off_delay" name="power_off_delay" value="50">
-        <label for="swd_wait">SWD Wait:</label>
+        <label for="swd_wait">SWD Wait (µs):</label>
         <input type="text" id="swd_wait" name="swd_wait" value="100">
-        <button onclick='send("set_delay?delay="+document.getElementById("delay").value+"&delay_end="+document.getElementById("delay_end").value+"&power_off="+document.getElementById("power_off_delay").value+"&swd_wait="+document.getElementById("swd_wait").value)'>Set glitch
-            delay</button><br>
-            Set glitcher will run between these two delay times.
+        <button onclick='send("set_delay?delay="+document.getElementById("delay").value+"&delay_end="+document.getElementById("delay_end").value+"&power_off="+document.getElementById("power_off_delay").value+"&swd_wait="+document.getElementById("swd_wait").value)'>Set Glitch
+            Delay</button>
             <br><br>
-        <button onclick='send("set_glitcher?state=1")'>Enable glitcher</button><button
-            onclick='send("set_glitcher?state=0")'>Disable glitcher</button>
+        <button onclick='send("set_glitcher?state=1")'>Enable Glitcher</button>
+		<button onclick='send("set_glitcher?state=0")'>Disable Glitcher</button>
         <br><br>
-        <button onclick='send("set_glitcher?state=dump_full_flash")'>Dump full flash</button>
+        <button onclick='send("set_glitcher?state=dump_full_flash")'>Dump Full Flash</button>
         <button onclick='send("set_glitcher?state=dump_full_uicr")'>Dump UICR</button>
     </section>
 
     <section>
         <h2>SWD</h2>
         <button onclick='send("set_swd?cmd=init")'>Init SWD</button>
-        <button onclick='send("set_swd?cmd=lock_state")'>Read nRF lock state</button>
-        <button onclick='send("set_swd?cmd=set_lock")'>Set nRF lock bit</button>
+        <button onclick='send("set_swd?cmd=lock_state")'>Read nRF Lock State</button>
+        <button onclick='send("set_swd?cmd=set_lock")'>Set nRF Lock Bit</button>
         <button onclick='send("set_swd?cmd=erase_all")'>Erase nRF</button>
         <button onclick='send("set_swd?cmd=set_reset")'>Reset nRF</button>
         <br><br>
@@ -92,17 +92,16 @@
         <label for="flash_value">Value</label>
         <input type="text" id="flash_value" name="flash_value" value="0">
         <button onclick='send("set_swd?cmd=read_register&address="+document.getElementById("flash_address").value)'>Read
-            nRF register</button>
+            nRF Register</button>
         <button
             onclick='send("set_swd?cmd=write_register&address="+document.getElementById("flash_address").value + "&value="+document.getElementById("flash_value").value)'>Write
-            nRF register</button>
+            nRF Register</button>
         <button
             onclick='send("set_swd?cmd=write_flash&address="+document.getElementById("flash_address").value + "&value="+document.getElementById("flash_value").value)'>Write
-            nRF flash</button><br><br>
+            nRF Flash</button><br><br>
 
         <button onclick='send("set_swd?cmd=power_on")'>Power ON</button>
         <button onclick='send("set_swd?cmd=power_off")'>Power OFF</button>
-
     </section>
 
     <section>
@@ -115,28 +114,28 @@
         <input type="text" id="flash_page_address" name="flash_address" value="0">
         <button
             onclick='send("flash_cmd?cmd=page_erase&address="+document.getElementById("flash_page_address").value)'>Erase
-            nRF page</button>
+            nRF Page</button>
         <br><br>
 
-        <label for="flash_file">Flash file</label>
+        <label for="flash_file">Flash File</label>
         <input type="text" id="flash_file" name="flash_file" value="file.bin">
         <label for="flash_file_offset">Offset 0x</label>
         <input type="text" id="flash_file_offset" name="flash_file_offset" value="0">
         <button
             onclick='send("flash_cmd?cmd=flash_file&file="+document.getElementById("flash_file").value+"&offset="+document.getElementById("flash_file_offset").value)'>Flash
-            file</button>
+            File</button>
         <br><br>
 
-        <label for="flash_uploaded_file">Flash uploaded file</label>
+        <label for="flash_uploaded_file">Flash Uploaded File</label>
         <form action="flash_file_direct" method="post" enctype="multipart/form-data" target="flash_uploaded_file">
             <label for="flash_up_file_offset">Offset 0x</label>
             <input type="text" id="flash_up_file_offset" name="flash_up_file_offset" value="0">
             <input type="file" id="flash_file_direct" name="flash_file_direct">
-            <input type="submit" value="Flash uploaded file" name="submit">
+            <input type="submit" value="Flash Uploaded File" name="submit">
         </form>
         <br><br>
 
-        <label for="dump_file">Dump flash to file</label>
+        <label for="dump_file">Dump Flash to File</label>
         <input type="text" id="dump_file" name="dump_file" value="file_dump.bin">
         <label for="dump_file_offset">Offset 0x</label>
         <input type="text" id="dump_file_offset" name="dump_file_offset" value="0">
@@ -144,15 +143,15 @@
         <input type="text" id="dump_file_size" name="dump_file_size" value="100">
         <button
             onclick='send("flash_cmd?cmd=dump_flash&file="+document.getElementById("dump_file").value+"&offset="+document.getElementById("dump_file_offset").value+"&size="+document.getElementById("dump_file_size").value)'>Dump
-            to file</button>
+            to File</button>
         <br><br>
         
-        <label for="download_flash">Download flash contents</label>
+        <label for="download_flash">Download Flash Contents</label>
         <label for="download_flash_offset">Offset 0x</label>
         <input type="text" id="download_flash_offset" name="download_flash_offset" value="0">
         <label for="download_flash_size">Size 0x</label>
         <input type="text" id="download_flash_size" name="download_flash_size" value="100">
-        <button onclick='window.open("/download_flash?offset="+document.getElementById("download_flash_offset").value+"&len="+document.getElementById("download_flash_size").value)'>Download flash</button>
+        <button onclick='window.open("/download_flash?offset="+document.getElementById("download_flash_offset").value+"&len="+document.getElementById("download_flash_size").value)'>Download Flash</button>
         <br><br>
         
         (All values in HEX)
@@ -166,17 +165,17 @@
     </section>
 
     <section>
-        <h2>nRF infos</h2>
-        <div id="main_infos"></div>
+        <h2>nRF info</h2>
+        <div id="main_info"></div>
     </section>
 
     <section>
-        <h2>Glitch osci</h2>
+        <h2>Glitch Osciliscope</h2>
         <label for="graph_time">Time</label>
         <input type="text" id="graph_time" name="graph_time" value="300">
         <label for="graph_delay">Delay</label>
         <input type="text" id="graph_delay" name="graph_delay" value="2000">
-        <button onclick='sendGraph("get_graph?size="+document.getElementById("graph_time").value+"&delay="+document.getElementById("graph_delay").value)'>Get graph</button>
+        <button onclick='sendGraph("get_graph?size="+document.getElementById("graph_time").value+"&delay="+document.getElementById("graph_delay").value)'>Get Graph</button><br><br>
         <div id="graph">
           
            <canvas id="graph_canvas" width="5" height="5" style="border:1px solid #c3c3c3;"></canvas><br>
@@ -185,17 +184,25 @@
     </section>
 
     <section>
-        <h2>Infos</h2>
-        This software brings you the possibility to Read and Write the internal Flash of the Nordic nRF52 series with an
+        <h2>Instructions</h2>
+        This software makes it possibile to Read and Write the internal Flash of the Nordic nRF52 series with an
         ESP32.<br>
-
-        To flash an nRF52 connect the SWD pins: CLK to GPIO 21 and DIO to GPIO 19 of the ESP32. Also connect the nRF52
-        GND to the ESP32 and power the nRF52 as needed.<br>
-
+        <br>
+        To flash an nRF52 connect the following:
+		<br>• nRF52 <b>SWDCLK</b> to ESP32 <b>GPIO 21</b>
+		<br>• nRF52 <b>SWDIO</b> to ESP32 <b>GPIO 19</b>
+		<br>• nRF52 <b>GND</b> to ESP32 <b>GND</b> to N-Channel MOSFET <b>GND</b> (Optional: O-scope <b>GND Clips</b>)
+		<br>• Then power the nRF52 as needed.<br>
+		<br>
+		To bypass the APPROTECT of an nRF52, connect all of the above and the following:
+		<br>• nRF52 3.3V Power <b>VDD</b> to ESP32 <b>GPIO 22</b> (Optional: O-scope <b>Channel 2 Probe</b>)
+		<br>• N-Channel MOSFET <b>PWM+</b> to ESP32 <b>GPIO 5</b>
+		<br>• N-Channel MOSFET <b>VOUT-</b> to nRF52 <b>DEC1</b> (Optional: O-scope <b>Channel 1 Probe</b>)
+		<br>• Then power the nRF52 as needed.<br>
     </section>
 
     <script>
-        const infosDiv = document.getElementById('main_infos');
+        const infoDiv = document.getElementById('main_info');
         const answerDiv = document.getElementById('answer');
         const contentDiv = document.getElementById("content");
         const progressMarker = document.getElementById("dot");
@@ -283,30 +290,30 @@
                 console.log('Answer: ' + response_text)
                 if (response_text.indexOf(';info;') == 0) {
                     let parts = response_text.split(';');
-                    infosDiv.innerHTML = '<br>';
+                    infoDiv.innerHTML = '<br>';
                     if (parts[2] == "2") {
-                        infosDiv.innerHTML += 'nRF is connected ';
+                        infoDiv.innerHTML += 'nRF is connected ';
                         if (parts[14] == "0")
-                            infosDiv.innerHTML += 'and lock bit set, so a good power glitch';
-                        infosDiv.innerHTML += '<br>';
-                        infosDiv.innerHTML += '<br>';
-                        infosDiv.innerHTML += 'Flash_size: ' + Math.floor(parts[3] / 1024) + ' kByte / 0x' + parseInt(parts[3]).toString(16) + '<br>';
-                        infosDiv.innerHTML += 'Part: ' + parseInt(parts[7]).toString(16) + '<br>';
-                        infosDiv.innerHTML += '<br>';
-                        infosDiv.innerHTML += 'SoftDevice: 0x' + parseInt(parts[13]).toString(16) + '<br>';
-                        infosDiv.innerHTML += '<br>';
-                        infosDiv.innerHTML += 'ESP32 Memory size: ' + Math.floor(parts[10] / 1024) + ' kByte<br>';
-                        infosDiv.innerHTML += 'ESP32 free Memory: ' + Math.floor(parts[12] / 1024) + ' kByte<br>';
-                        infosDiv.innerHTML += '<br>';
+                            infoDiv.innerHTML += 'and lock bit set, so a good power glitch';
+                        infoDiv.innerHTML += '<br>';
+                        infoDiv.innerHTML += '<br>';
+                        infoDiv.innerHTML += 'Flash_Size: ' + Math.floor(parts[3] / 1024) + ' kB / 0x' + parseInt(parts[3]).toString(16) + '<br>';
+                        infoDiv.innerHTML += 'Part: ' + parseInt(parts[7]).toString(16) + '<br>';
+                        infoDiv.innerHTML += '<br>';
+                        infoDiv.innerHTML += 'SoftDevice: 0x' + parseInt(parts[13]).toString(16) + '<br>';
+                        infoDiv.innerHTML += '<br>';
+                        infoDiv.innerHTML += 'ESP32 Memory Size: <b>' + Math.floor(parts[10] / 1024) + '</b> kB<br>';
+                        infoDiv.innerHTML += 'ESP32 Free Memory: <b>' + Math.floor(parts[12] / 1024) + '</b> kB<br>';
+                        infoDiv.innerHTML += '<br>';
                     } else {
                         if (parts[2] == "1")
-                            infosDiv.innerHTML += 'nRF connected but locked<br>';
+                            infoDiv.innerHTML += 'nRF connected but locked<br>';
                         else
-                            infosDiv.innerHTML += 'nRF not connected<br>';
-                        infosDiv.innerHTML += '<br>';
-                        infosDiv.innerHTML += 'ESP32 Memory size: ' + Math.floor(parts[10] / 1024) + ' kByte<br>';
-                        infosDiv.innerHTML += 'ESP32 free Memory: ' + Math.floor(parts[12] / 1024) + ' kByte<br>';
-                        infosDiv.innerHTML += '<br>';
+                            infoDiv.innerHTML += 'nRF not connected<br>';
+                        infoDiv.innerHTML += '<br>';
+                        infoDiv.innerHTML += 'ESP32 Memory Size: <b>' + Math.floor(parts[10] / 1024) + '</b> kB<br>';
+                        infoDiv.innerHTML += 'ESP32 Free Memory: <b>' + Math.floor(parts[12] / 1024) + '</b> kB<br>';
+                        infoDiv.innerHTML += '<br>';
                     }
                     new_cmd = "1";
                 } else {
