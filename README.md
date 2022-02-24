@@ -28,7 +28,7 @@ This repo is explained and demonstrated in these videos (click to watch):
 ### Required Hardware
 
 - ESP32 Development Board
-- NFet Mosfet
+- N-Channel MOSFET Board
 - nRF52 Series Board
 - Optional: Oscilloscope
 
