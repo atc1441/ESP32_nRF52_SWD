@@ -11,18 +11,13 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFSEditor.h>
+#include <LoopbackStream.h>
 
 #include <WiFiManager.h> // https://github.com/tzapu/WiFiManager/tree/feature_asyncwebserver
 
 #include "nrf_swd.h"
 #include "glitcher.h"
 #include "defines.h"
-
-uint8_t _direct_buffer[4096] = {0};
-uint32_t _direct_position = 0;
-uint32_t _direct_offset = 0;
-uint32_t _main_offset = 0;
-long millis_start = 0;
 
 const char *http_username = "admin";
 const char *http_password = "admin";
@@ -33,6 +28,42 @@ unsigned long hstol(String recv)
   char c[recv.length() + 1];
   recv.toCharArray(c, recv.length() + 1);
   return strtoul(c, NULL, 16);
+}
+
+byte nibble(char c)
+{
+  if (c >= '0' && c <= '9')
+    return c - '0';
+
+  if (c >= 'a' && c <= 'f')
+    return c - 'a' + 10;
+
+  if (c >= 'A' && c <= 'F')
+    return c - 'A' + 10;
+
+  return 0;
+}
+
+int decode_line(byte* buf, String line){
+  int data_len = nibble(line[1])*16 + nibble(line[2]);
+  int line_len = data_len + 5;
+
+  if (line.length() < line_len*2 + 1){
+    return -1;
+  }
+
+  for (int i = 0; i < line_len; i++){
+    buf[i] = nibble(line[1+i*2])*16 + nibble(line[2+i*2]);
+  }
+
+  byte csum = 0;
+  for (int i = 0; i < line_len; i++){
+    csum += buf[i];
+  }
+  if (csum){ // should be 0
+    return -2;
+  }
+  return 0;
 }
 
 void init_web()
@@ -443,39 +474,100 @@ void init_web()
       { request->send(200, "text/plain", "Upload complete!"); },
       [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
       {
-        Serial.printf("received data file:%s index:%d len:%d final:%d\r\n", filename.c_str(), index, len, final);
+        static LoopbackStream buffer(512);
+        static uint32_t flash_offset;
+        static uint32_t written_bytes;
+        static long millis_start;
+        static int file_type;
+        static bool upload_failed;
 
-        uint32_t copy_len = 0;
+        size_t pos = 0;
+
+        Serial.printf("received data file:%s index:%d len:%d final:%d\r\n", filename.c_str(), index, len, final);
 
         if (!index)
         {
           millis_start = millis();
+          written_bytes = 0;
+          upload_failed = false;
+          buffer.clear();
+
           if (request->hasParam("flash_up_file_offset"), true)
           {
-            _main_offset = hstol(request->getParam("flash_up_file_offset", true)->value());
+            flash_offset = hstol(request->getParam("flash_up_file_offset", true)->value());
+          } else {
+            flash_offset = 0;
+          }
+
+          if (filename.endsWith(".hex")){
+            file_type = 2;
+            flash_offset = 0; //we ignore offset for hex files
+          } else {
+            file_type = 1;
           }
         }
-        uint32_t already_copy_len = 0;
-        while (len)
-        {
-          bool size_flag = (_direct_position + len) > 4096;
-          copy_len = size_flag ? (4096 - _direct_position) : len;
-          memcpy(&_direct_buffer[_direct_position], &data[already_copy_len], copy_len);
-          len -= copy_len;
-          already_copy_len += copy_len;
-          _direct_position += copy_len;
-          if (size_flag || final)
-          {
-            Serial.printf("Ok gonna flash bank final: %i, offset:%08x, len: %i len_left %i\r\n", final, _direct_offset + _main_offset, _direct_position, len);
-            nrf_write_bank(_direct_offset + _main_offset, (uint32_t *)_direct_buffer, _direct_position);
-            _direct_offset += _direct_position;
-            _direct_position = 0;
-          }
+
+        if (upload_failed){
+          return;
         }
+
+        while (pos < len) {
+          buffer.write(data[pos++]);
+
+          if (file_type == 1){
+            int chunk_size = 256;
+            if ((pos == len) && (final)){
+              chunk_size = buffer.available();
+            }
+
+            if (buffer.available() >= chunk_size){
+              char buf[chunk_size];
+              buffer.readBytes(buf, chunk_size);
+              
+              Serial.printf("Ok gonna flash bank final: %i, offset:%08x, len: %i len_callback %i\r\n", final, flash_offset + written_bytes, chunk_size, len);
+              nrf_write_bank(flash_offset + written_bytes, (uint32_t *)buf, chunk_size);
+              written_bytes += chunk_size;
+            }
+          } else if (file_type == 2){
+              if (buffer.contains('\n')){
+                String line = buffer.readStringUntil('\n');
+                Serial.printf("hex line found: \r\n"); Serial.print(line); Serial.printf("\r\n");
+
+                if (line[0] != ':'){
+                  Serial.printf("ERROR: line not starting with ':'\r\n");
+                  upload_failed = true;
+                  return;
+                }
+                int data_len = nibble(line[1])*16 + nibble(line[2]);
+                int line_len = data_len + 5;
+                byte buf[line_len];
+                if (int ret = decode_line(buf, line)) {
+                  Serial.printf("ERROR: line decode error %d\r\n", ret);
+                  upload_failed = true;
+                  return;
+                }
+
+                if (buf[3] == 0x02){
+                  flash_offset = buf[4]*0x1000 + buf[5]*0x10;
+                  Serial.printf("Setting flash_offset to %d\r\n", flash_offset);
+                } else if (buf[3] == 0x04){
+                  flash_offset = (flash_offset & 0xFFFF) + (buf[4] << 24) + (buf[5] << 16);
+                  Serial.printf("Setting flash_offset to %d\r\n", flash_offset);
+                } else if (buf[3] == 0x00){
+                  int off = buf[1]*0x100 + buf[2];
+                  Serial.printf("Writing flash_offset: 0x%x off 0x%x\r\n", flash_offset, off);
+                  nrf_write_bank(flash_offset + off, (uint32_t *)(buf+4), buf[0]);
+                  written_bytes += buf[0];
+                }
+
+              }
+          }
+
+        }
+
         if (final)
         {
-          set_last_speed((float)((float)(_direct_offset + copy_len) / (float)(millis() - millis_start)));
-          _direct_offset = 0;
+          set_last_speed((float)((float)(written_bytes) / (float)(millis() - millis_start)));
         }
       });
 
