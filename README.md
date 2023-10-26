@@ -39,6 +39,7 @@ This repo is explained and demonstrated in these videos (click to watch):
 - This version of the WifiManager https://github.com/tzapu/WiFiManager/tree/feature_asyncwebserver
 - AsyncTCP https://github.com/me-no-dev/AsyncTCP
 - ESPAsyncWebServer https://github.com/me-no-dev/ESPAsyncWebServer
+- ArduinoBufferedStreams https://github.com/paulo-raca/ArduinoBufferedStreams
 
 ### HowTo:
 
