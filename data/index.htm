@@ -145,7 +145,7 @@
             onclick='send("flash_cmd?cmd=dump_flash&file="+document.getElementById("dump_file").value+"&offset="+document.getElementById("dump_file_offset").value+"&size="+document.getElementById("dump_file_size").value)'>Dump
             to File</button>
         <br><br>
-        
+
         <label for="download_flash">Download Flash Contents</label>
         <label for="download_flash_offset">Offset 0x</label>
         <input type="text" id="download_flash_offset" name="download_flash_offset" value="0">
@@ -153,7 +153,7 @@
         <input type="text" id="download_flash_size" name="download_flash_size" value="100">
         <button onclick='window.open("/download_flash?offset="+document.getElementById("download_flash_offset").value+"&len="+document.getElementById("download_flash_size").value)'>Download Flash</button>
         <br><br>
-        
+
         (All values in HEX)
     </section>
 
@@ -177,9 +177,9 @@
         <input type="text" id="graph_delay" name="graph_delay" value="2000">
         <button onclick='sendGraph("get_graph?size="+document.getElementById("graph_time").value+"&delay="+document.getElementById("graph_delay").value)'>Get Graph</button><br><br>
         <div id="graph">
-          
+
            <canvas id="graph_canvas" width="5" height="5" style="border:1px solid #c3c3c3;"></canvas><br>
-          
+
         </div>
     </section>
 
@@ -189,16 +189,16 @@
         ESP32.<br>
         <br>
         To flash an nRF52 connect the following:
-		<br>• nRF52 <b>SWDCLK</b> to ESP32 <b>GPIO 21</b>
-		<br>• nRF52 <b>SWDIO</b> to ESP32 <b>GPIO 19</b>
-		<br>• nRF52 <b>GND</b> to ESP32 <b>GND</b> to N-Channel MOSFET <b>GND</b> (Optional: O-scope <b>GND Clips</b>)
+		<br>• nRF52 <b>SWDCLK</b> to ESP gpio
+		<br>• nRF52 <b>SWDIO</b> to ESP gpio
+		<br>• nRF52 <b>GND</b> to ESP <b>GND</b> to N-Channel MOSFET <b>source</b> (Optional: O-scope <b>GND Clips</b>)
 		<br>• Then power the nRF52 as needed.<br>
 		<br>
 		To bypass the APPROTECT of an nRF52, connect all of the above and the following:
-		<br>• nRF52 3.3V Power <b>VDD</b> to ESP32 <b>GPIO 22</b> (Optional: O-scope <b>Channel 2 Probe</b>)
-		<br>• N-Channel MOSFET <b>PWM+</b> to ESP32 <b>GPIO 5</b>
-		<br>• N-Channel MOSFET <b>VOUT-</b> to nRF52 <b>DEC1</b> (Optional: O-scope <b>Channel 1 Probe</b>)
-		<br>• Then power the nRF52 as needed.<br>
+		<br>• nRF52 3.3V Power <b>VDD</b> to ESP gpio (Optional: O-scope <b>Channel 2 Probe</b>)
+		<br>• N-Channel MOSFET <b>gate</b> to ESP gpio
+		<br>• N-Channel MOSFET <b>drain</b> to nRF52 <b>DEC1</b> (Optional: O-scope <b>Channel 1 Probe</b>)
+		<br>• Then power the nRF52 as needed. <a href="/pins">Here is a list of the ESP GPIO's used</a><br>
     </section>
 
     <script>
@@ -206,8 +206,8 @@
         const answerDiv = document.getElementById('answer');
         const contentDiv = document.getElementById("content");
         const progressMarker = document.getElementById("dot");
-        
-        
+
+
         //Graph feature
         const canvas = document.getElementById("graph_canvas");
         const ctx = canvas.getContext("2d");

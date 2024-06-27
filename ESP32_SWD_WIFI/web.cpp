@@ -98,6 +98,20 @@ void init_web()
   server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(200, "text/plain", String(ESP.getFreeHeap())); });
 
+#define xstr(a) str(a)
+#define str(a) #a
+
+  server.on("/pins", HTTP_GET, [](AsyncWebServerRequest *request) {
+    String answer_state =
+    "GPIO " xstr(LED) "\t: (internal)LED\n"
+    "GPIO " xstr(swd_clock_pin) "\t: nRF52 SWDCLK pin\n"
+    "GPIO " xstr(swd_data_pin) "\t: nRF52 SWDIO pin\n"
+    "GPIO " xstr(GLITCHER) "\t: to gate of N-mosfet\n"
+    "GPIO " xstr(NRF_POWER) "\t: nRF52 3.3V, VDD pin\n"
+    "GPIO " xstr(OSCI_PIN) "\t: ADC pin for internal oscilloscope\n";
+    request->send(200, "text/plain", answer_state);
+  });
+
   server.on("/get_state", HTTP_GET, [](AsyncWebServerRequest *request)
             {
               String new_cmd = "";
