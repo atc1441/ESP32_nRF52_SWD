@@ -523,7 +523,7 @@ void init_web()
             if (buffer.available() >= chunk_size){
               char buf[chunk_size];
               buffer.readBytes(buf, chunk_size);
-              
+
               Serial.printf("Ok gonna flash bank final: %i, offset:%08x, len: %i len_callback %i\r\n", final, flash_offset + written_bytes, chunk_size, len);
               nrf_write_bank(flash_offset + written_bytes, (uint32_t *)buf, chunk_size);
               written_bytes += chunk_size;
