@@ -16,10 +16,10 @@
 void setup()
 {
   Serial.begin(115200);
+  delay(2000);
   swd_begin();
   glitcher_begin();
   init_web();
-  delay(1000);
   Serial.printf("SWD Id: 0x%08x\r\n", nrf_begin());
 
 #ifdef ENABLE_OTA
