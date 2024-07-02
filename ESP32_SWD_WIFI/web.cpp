@@ -13,6 +13,8 @@
 #include <SPIFFSEditor.h>
 #include <LoopbackStream.h>
 
+#include "../secrets.h" // import for AP password
+
 #include <WiFiManager.h> // https://github.com/tzapu/WiFiManager/tree/feature_asyncwebserver
 
 #include "nrf_swd.h"
@@ -82,18 +84,18 @@ void init_web()
   WiFi.mode(WIFI_STA);
   WiFiManager wm;
   bool res;
-  res = wm.autoConnect("AutoConnectAP");
+  res = wm.autoConnect("AutoConnectAP", AP_PASSWORD);
   if (!res)
   {
-    Serial.println("Failed to connect");
     ESP.restart();
     #ifdef TX_POWER_FIX
     WiFi.setTxPower(WIFI_POWER_8_5dBm);
     #endif
   }
-  Serial.print("Connected! address: ");
-  Serial.print(WiFi.localIP());
-  Serial.print(" ");
+  Serial.println("FallbackAP SSID:AutoConnectAP PWD:");
+  Serial.println(AP_PASSWORD);
+
+  Serial.print("hostname: ");
   Serial.println(WiFi.getHostname());
 
   // Make accessible via http://swd.local using mDNS responder
