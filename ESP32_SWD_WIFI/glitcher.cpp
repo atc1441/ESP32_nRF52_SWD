@@ -48,10 +48,14 @@ bool get_glitcher()
   return glitcher_enabled;
 }
 
+#ifndef LED_STATE_ON
+#define LED_STATE_ON HIGH
+#endif
+
 void set_power(bool state)
 {
   digitalWrite(NRF_POWER, state);
-  digitalWrite(LED, state);
+  digitalWrite(LED, LED_STATE_ON ? state : !state);
 }
 
 void do_glitcher()

@@ -3,18 +3,15 @@
    SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include <Arduino.h>
-#include "web.h"
 #include <FS.h>
 #include "SPIFFS.h"
 #include <ESPmDNS.h>
-#include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFSEditor.h>
 #include <LoopbackStream.h>
 
-#include <WiFiManager.h> // https://github.com/tzapu/WiFiManager/tree/feature_asyncwebserver
-
+#include "web.h"
 #include "nrf_swd.h"
 #include "glitcher.h"
 #include "defines.h"
@@ -68,17 +65,8 @@ int decode_line(byte* buf, String line){
 
 void init_web()
 {
-  WiFi.mode(WIFI_STA);
-  WiFiManager wm;
-  bool res;
-  res = wm.autoConnect("AutoConnectAP");
-  if (!res)
-  {
-    Serial.println("Failed to connect");
-    ESP.restart();
-  }
-  Serial.print("Connected! IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.print("hostname: ");
+  Serial.println(WiFi.getHostname());
 
   // Make accessible via http://swd.local using mDNS responder
   if (!MDNS.begin("swd"))
@@ -97,6 +85,28 @@ void init_web()
 
   server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(200, "text/plain", String(ESP.getFreeHeap())); });
+
+#define xstr(a) str(a)
+#define str(a) #a
+
+  server.on("/pins", HTTP_GET, [](AsyncWebServerRequest *request) {
+    String answer_state =
+    "GPIO " xstr(LED) "\t: (internal)LED\n"
+    "GPIO " xstr(swd_clock_pin) "\t: nRF52 SWDCLK pin\n"
+    "GPIO " xstr(swd_data_pin) "\t: nRF52 SWDIO pin\n"
+    "GPIO " xstr(GLITCHER) "\t: to gate of N-mosfet\n"
+    "GPIO " xstr(NRF_POWER) "\t: nRF52 3.3V, VDD pin\n"
+    "GPIO " xstr(OSCI_PIN) "\t: ADC pin for internal oscilloscope\n";
+    request->send(200, "text/plain", answer_state);
+  });
+
+
+  server.on("/_reset_wifi_", HTTP_GET, [](AsyncWebServerRequest *request) {
+    if(!WiFi.disconnect(true, true))
+      request->send(200, "text/plain", "WiFi disconnect failed");
+    else
+      ESP.restart();
+  });
 
   server.on("/get_state", HTTP_GET, [](AsyncWebServerRequest *request)
             {
@@ -523,7 +533,7 @@ void init_web()
             if (buffer.available() >= chunk_size){
               char buf[chunk_size];
               buffer.readBytes(buf, chunk_size);
-              
+
               Serial.printf("Ok gonna flash bank final: %i, offset:%08x, len: %i len_callback %i\r\n", final, flash_offset + written_bytes, chunk_size, len);
               nrf_write_bank(flash_offset + written_bytes, (uint32_t *)buf, chunk_size);
               written_bytes += chunk_size;
@@ -678,13 +688,13 @@ void init_web()
                       int i;
                       for (i = 0; i < headers; i++)
                       {
-                        AsyncWebHeader *h = request->getHeader(i);
+                        const AsyncWebHeader *h = request->getHeader(i);
                         Serial.printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
                       }
                       int params = request->params();
                       for (i = 0; i < params; i++)
                       {
-                        AsyncWebParameter *p = request->getParam(i);
+                        const AsyncWebParameter *p = request->getParam(i);
                         if (p->isFile())
                         {
                           Serial.printf("_FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());

@@ -4,6 +4,7 @@
 */
 #pragma once
 
+/* move to defines in platformio.ini
 #define LED 2
 #define GLITCHER 5
 #define NRF_POWER 22
@@ -12,6 +13,7 @@
 
 #define swd_clock_pin 21
 #define swd_data_pin 19
+*/
 
 #define AP_NRF_RESET 0x00
 #define AP_NRF_ERASEALL 0x04

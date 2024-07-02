@@ -359,7 +359,7 @@ uint32_t nrf_read_bank_bytes(uint32_t address, uint8_t buffer[], int size){
 
   uint32_t al_buf[PAGE_LEN/4];
   nrf_read_bank(page * PAGE_LEN, al_buf, PAGE_LEN);
-  
+
   for (int i=offset; i<offset+al_size; i++){
     buffer[i-offset] = ((uint8_t *)al_buf)[i];
   }
