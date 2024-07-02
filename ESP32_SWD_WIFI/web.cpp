@@ -3,20 +3,15 @@
    SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include <Arduino.h>
-#include "web.h"
 #include <FS.h>
 #include "SPIFFS.h"
 #include <ESPmDNS.h>
-#include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFSEditor.h>
 #include <LoopbackStream.h>
 
-#include "../secrets.h" // import for AP password
-
-#include <WiFiManager.h> // https://github.com/tzapu/WiFiManager/tree/feature_asyncwebserver
-
+#include "web.h"
 #include "nrf_swd.h"
 #include "glitcher.h"
 #include "defines.h"
@@ -70,31 +65,6 @@ int decode_line(byte* buf, String line){
 
 void init_web()
 {
-  #ifdef TX_POWER_FIX
-    // see https://github.com/luc-github/ESP3D/issues/1009
-    int txPower = WiFi.getTxPower();
-    WiFi.setTxPower(WIFI_POWER_8_5dBm);
-
-    Serial.print("TX power: ");
-    Serial.print(txPower);
-    Serial.print(" -> ");
-    Serial.println(WiFi.getTxPower());
-  #endif
-
-  WiFi.mode(WIFI_STA);
-  WiFiManager wm;
-  bool res;
-  res = wm.autoConnect("AutoConnectAP", AP_PASSWORD);
-  if (!res)
-  {
-    ESP.restart();
-    #ifdef TX_POWER_FIX
-    WiFi.setTxPower(WIFI_POWER_8_5dBm);
-    #endif
-  }
-  Serial.println("FallbackAP SSID:AutoConnectAP PWD:");
-  Serial.println(AP_PASSWORD);
-
   Serial.print("hostname: ");
   Serial.println(WiFi.getHostname());
 
@@ -128,6 +98,14 @@ void init_web()
     "GPIO " xstr(NRF_POWER) "\t: nRF52 3.3V, VDD pin\n"
     "GPIO " xstr(OSCI_PIN) "\t: ADC pin for internal oscilloscope\n";
     request->send(200, "text/plain", answer_state);
+  });
+
+
+  server.on("/_reset_wifi_", HTTP_GET, [](AsyncWebServerRequest *request) {
+    if(!WiFi.disconnect(true, true))
+      request->send(200, "text/plain", "WiFi disconnect failed");
+    else
+      ESP.restart();
   });
 
   server.on("/get_state", HTTP_GET, [](AsyncWebServerRequest *request)
