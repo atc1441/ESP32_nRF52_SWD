@@ -1,3 +1,7 @@
+/*
+   Copyright (c) 2021 https://github.com/me-no-dev
+   SPDX-License-Identifier: GPL-3.0-or-later
+*/
 #ifndef SPIFFSEditor_H_
 #define SPIFFSEditor_H_
 #include <ESPAsyncWebServer.h>
@@ -6,7 +10,7 @@ class SPIFFSEditor: public AsyncWebHandler {
   private:
     fs::FS _fs;
     String _username;
-    String _password; 
+    String _password;
     bool _authenticated;
     uint32_t _startTime;
   public:

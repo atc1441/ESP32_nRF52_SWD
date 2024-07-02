@@ -1,3 +1,7 @@
+/*
+   Copyright (c) 2021 https://github.com/me-no-dev
+   SPDX-License-Identifier: GPL-3.0-or-later
+*/
 #include "SPIFFSEditor.h"
 #include <FS.h>
 
@@ -288,13 +292,13 @@ static bool matchWild(const char *pattern, const char *testee) {
       nxPat=pattern++; nxTst=testee;
       continue;
     }
-    if (nxPat){ 
+    if (nxPat){
       pattern = nxPat+1; testee=++nxTst;
       continue;
     }
     return false;
   }
-  while (*pattern=='*'){pattern++;}  
+  while (*pattern=='*'){pattern++;}
   return (*pattern == 0);
 }
 
