@@ -40,6 +40,8 @@ Note: The Arduino IDE is not supported any more!
 
 Change the WiFi credentials in Web.cpp and the Pinout to your needs in the platformio.ini file
 
+Upload the data/index.htm to the ESP32 via the ip-address/edit web editor 
+
 
 
 ### ESP32 Glitcher schematic:
