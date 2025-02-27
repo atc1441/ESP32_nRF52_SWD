@@ -34,9 +34,11 @@ This repo is explained and demonstrated in these videos (click to watch):
 
 ### HowTo:
 
-Use Visual Studio Code with PlatformIO to compile and upload the project. The Arduino IDE is not supported any more!
+Use Visual Studio Code with PlatformIO to compile and upload the project.
 
-Change the WiFi credentials and Pinout to your needs in the platformio.ini file
+Note: The Arduino IDE is not supported any more!
+
+Change the WiFi credentials in Web.cpp and the Pinout to your needs in the platformio.ini file
 
 
 
