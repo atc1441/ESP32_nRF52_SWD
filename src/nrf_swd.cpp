@@ -8,7 +8,6 @@
 #include "swd.h"
 #include <FS.h>
 #include <SPIFFS.h>
-#include "esp_task_wdt.h"
 
 bool is_connected = false;
 long last_ack_check = 0;
