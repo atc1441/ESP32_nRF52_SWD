@@ -26,21 +26,58 @@ This repo is explained and demonstrated in these videos (click to watch):
 ### Required Hardware
 
 - ESP32 Development Board
-- N-Channel MOSFET Board
 - nRF52 Series Board
-- Optional: Oscilloscope
+- Optional for circumventing APPROTECT:
+  - Oscilloscope
+  - N-Channel MOSFET (Board)
 
-### HowTo:
+### Common setup steps
+
+Change the WiFi credentials in `src/web.cpp` and the pinout to your needs in the `platformio.ini` file
+
+### Option 1: Visual Studio Code: Build/upload steps
 
 Use Visual Studio Code with PlatformIO to compile and upload the project.
 
 Note: The Arduino IDE is not supported any more!
 
-Change the WiFi credentials in Web.cpp and the Pinout to your needs in the platformio.ini file
+Upload the data/index.htm to the ESP32 via the http://swd.local/edit web editor
 
-Upload the data/index.htm to the ESP32 via the ip-address/edit web editor 
+### Option 2: CLI build/upload steps
 
+No need to install VS Code/Codium if all you want is a flashed ESP32
 
+#### Compile
+Look into `platformio.ini` what your device needs or probably add a new block for your specific hardware there
+
+E.g., for the ESP32 Devkit, run:
+
+`pio run -e ESP32_nRF52_SWD`
+
+#### Build the SPIFFS flash image
+The resulting `spiffs.bin` contains the contents of `data/`. No upload of `index.htm` necessary (as mentioned in the VS Code route above) when it gets flashed as well (see below)
+
+`pio run -t buildfs`
+
+#### Flash the ESP32
+```
+port=/dev/ttyUSB0 # change to whatever becomes available if you connect the ESP with the BOOT button/pin held down
+esptool --port $port erase-flash
+esptool --port $port --chip esp32 --baud 921600 --before default-reset --after hard-reset write-flash -z --flash-mode dout --flash-size detect 0x1000 .pio/build/ESP32_nRF52_SWD/bootloader.bin 0x8000 .pio/build/ESP32_nRF52_SWD/partitions.bin 0x10000 .pio/build/ESP32_nRF52_SWD/firmware.bin 0x120000 .pio/build/ESP32_nRF52_SWD/spiffs.bin
+```
+
+#### (optional) use a serial terminal to see debug messages
+```
+minicom -D $port
+```
+
+### Usage
+
+Point your browser at http://swd.local
+
+There is also a web editor page at http://swd.local/edit where you can e.g. upload firmware files you can reference on the main page (default login is `admin/admin` or the credentials you changed it to in `src/web.cpp` above).
+
+The web editor needs a working internet connection for downloading JS client components.
 
 ### ESP32 Glitcher schematic:
 
